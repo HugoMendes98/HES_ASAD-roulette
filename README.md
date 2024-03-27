@@ -28,31 +28,67 @@ Jeu de roulette ...
 ### Modélisation entitée
 
 ```mermaid
+---
+title: Model Roulette
+---
+
 erDiagram
  Player {
+  number id
+  string nickname
+  string email
+  string password
   number money
  }
 
  Bid {
+  number id 
   number amount
+  string content
+  enum status
+  date date
  }
 
  Round {
   boolean finished
   number score
+  date date
  }
 
  Party {
-
+  number id
+  enum status
+  number timeToBet
+  
  }
 
  Administrator {
-
+  
  }
+
+ HistoryWinratePlayer["HistoryWinratePlayer (JOIN Table)"] {
+   number totalGain
+ }
+
+HistoryParty["HistoryParty (JOIN Table)"]{
+number totalGain
+date date   
+}
+
+ 
 
  Player ||--o{ Bid : bids
  Round ||--o{ Bid : "played on"
  Round }o--|| Party : "played on"
 
  Administrator |o--|| Player : ""
+ Administrator ||--o{ Party : "manage"
+
+ Player ||--o{ HistoryWinratePlayer : ""
+ Round ||--o{ HistoryWinratePlayer : ""
+
+ Party ||--o{ HistoryParty : ""
+ Round ||--o{ HistoryParty : ""
+
+
 ```
