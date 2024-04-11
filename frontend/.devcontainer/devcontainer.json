@@ -1,0 +1,37 @@
+{
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"Angular.ng-template",
+				"EditorConfig.EditorConfig",
+				"GitHub.vscode-pull-request-github",
+				"Gruntfuggly.todo-tree",
+				"dbaeumer.vscode-eslint",
+				"exiasr.hadolint",
+				"formulahendry.auto-close-tag",
+				"formulahendry.auto-rename-tag",
+				"github.vscode-github-actions",
+				"hediet.vscode-drawio",
+				"mhutchie.git-graph",
+				"redhat.vscode-yaml",
+				"streetsidesoftware.code-spell-checker",
+				"stylelint.vscode-stylelint",
+				"waderyan.gitblame",
+				"yoavbls.pretty-ts-errors"
+			],
+			"settings": {
+				// Ensure correct node version
+				"eslint.runtime": "/usr/local/bin/node"
+			}
+		}
+	},
+	"features": {
+		"ghcr.io/dhoeric/features/hadolint:1": {}
+	},
+	"name": "DevContainer front",
+	"onCreateCommand": "npm install",
+	"postCreateCommand": "echo \"PATH=\"${PATH}:${PWD}/node_modules/.bin\"\" >> ~/.bashrc"
+}
