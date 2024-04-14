@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import { MatToolbarModule } from "@angular/material/toolbar";
 import { RouterOutlet } from "@angular/router";
 
 @Component({
@@ -6,9 +7,7 @@ import { RouterOutlet } from "@angular/router";
 	standalone: true,
 	styleUrl: "./app.component.scss",
 	templateUrl: "./app.component.html",
-	
-	imports: [RouterOutlet],
+
+	imports: [MatToolbarModule, RouterOutlet],
 })
-export class AppComponent {
-	public title = "frontend";
-}
+export class AppComponent {}

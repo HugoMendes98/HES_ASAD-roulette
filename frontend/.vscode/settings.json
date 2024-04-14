@@ -28,7 +28,6 @@
 		"*.yaml": "yaml",
 		"*.yml": "yaml"
 	},
-	"git.openRepositoryInParentFolders": "always",
 	"stylelint.enable": true,
 	"stylelint.snippet": ["css", "scss"],
 	"stylelint.validate": ["css", "scss"]

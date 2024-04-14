@@ -217,6 +217,18 @@
 			],
 			"files": ["*.ts"],
 			"rules": {
+				"@angular-eslint/component-class-suffix": [
+					"error",
+					{
+						"suffixes": [
+							"Component",
+							"Card",
+							"Dialog",
+							"SnackBar",
+							"View"
+						]
+					}
+				],
 				"@angular-eslint/component-selector": [
 					"error",
 					{

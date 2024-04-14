@@ -9,6 +9,7 @@
 				"EditorConfig.EditorConfig",
 				"GitHub.vscode-pull-request-github",
 				"Gruntfuggly.todo-tree",
+				"charliermarsh.ruff",
 				"dbaeumer.vscode-eslint",
 				"exiasr.hadolint",
 				"formulahendry.auto-close-tag",
@@ -16,22 +17,26 @@
 				"github.vscode-github-actions",
 				"hediet.vscode-drawio",
 				"mhutchie.git-graph",
+				"ms-python.python",
 				"redhat.vscode-yaml",
 				"streetsidesoftware.code-spell-checker",
 				"stylelint.vscode-stylelint",
+				"tamasfe.even-better-toml",
 				"waderyan.gitblame",
 				"yoavbls.pretty-ts-errors"
 			],
-			"settings": {
-				// Ensure correct node version
-				"eslint.runtime": "/usr/local/bin/node"
-			}
+			"settings": {}
 		}
 	},
 	"features": {
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "20"
+		},
 		"ghcr.io/dhoeric/features/hadolint:1": {}
 	},
-	"name": "DevContainer front",
-	"onCreateCommand": "npm install",
-	"postCreateCommand": "echo \"PATH=\"${PATH}:${PWD}/node_modules/.bin\"\" >> ~/.bashrc"
+	"name": "DevContainer",
+	"onCreateCommand": {
+		"init-back": "cd backend && pip3 install -r requirements.txt",
+		"init-front": "cd frontend && npm install"
+	}
 }

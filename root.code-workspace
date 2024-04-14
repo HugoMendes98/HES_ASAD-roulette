@@ -1,0 +1,24 @@
+{
+	"folders": [
+		{
+			"name": "root",
+			"path": "."
+		},
+		{
+			"path": "backend"
+		},
+		{
+			"path": "frontend"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"root.code-workspace": "json"
+		},
+		"files.exclude": {
+			// Only shown as workspaces
+			"backend": true,
+			"frontend": true
+		}
+	}
+}

@@ -2,18 +2,6 @@
 
 Jeu de roulette ...
 
-## Run
-
-```
-python3 -m .venv
-. .venv/bin/activate
-pip install -r requirements.txt
-python3 app.py
-```
-
-go to http://localhost:5000
-
-
 ## Spécifications
 
 ### Roles
