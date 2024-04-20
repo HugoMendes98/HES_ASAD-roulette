@@ -14,8 +14,3 @@ class Game(db.Model):
         db.session.add(n)
         db.session.commit()
         return n
-
-    @classmethod
-    def get_bids_from_user_and_round(cls,user_id,round_id):
-        n = db.session.query(Bid).filter_by(user_id=user_id, round_id=round_id).all()
-        return n
