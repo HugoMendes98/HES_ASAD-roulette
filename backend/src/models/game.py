@@ -1,4 +1,4 @@
-from app import db
+from . import db
 
 # technically represent a "table"
 # maybe ad a "closed" state

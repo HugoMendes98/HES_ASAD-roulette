@@ -1,5 +1,5 @@
 from datetime import datetime
-from app import db
+from . import db
 from enum import Enum
 
 # IDK if this is the standart
@@ -55,6 +55,7 @@ class Bets(Enum):
     ROW_ONE = 46  # mod 3 = 1
     ROW_TWO = 47  # mod 3 = 2
     ROW_THREE = 48  # mod 3 = 0
+
 
 
 class Bid(db.Model):
