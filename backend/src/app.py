@@ -1,4 +1,5 @@
 import random
+from enum import Enum
 
 from flask import Flask, request
 from flask_cors import CORS
@@ -19,11 +20,15 @@ from models.bid import Bid
 CORS(app, origins="*")
 socketio = SocketIO(app, cors_allowed_origins="*", logger=True)
 
-
+class GameType(Enum):
+	BIDABLE = "bid-able", 0
+	IDLE = "idle", 1
+	WAITING = "waiting", 2
+	RESULT = "results", 3
 
 # The "only" game (demo/test purpose)
-the_game = {"type": "idle", "round": 0}
-#the_game = the_game = Game.query.get(1)
+#the_game = {"type": "idle", "round": 0}
+the_game = the_game = Game.query.get(1) # not a dict !!!
 GAME_PATH = "/games/1"
 
 
@@ -37,7 +42,12 @@ def add_bet(game_id):
 	# TODO: validate input
 	if the_game["type"] != "bid-able":
 		return "NotPlayable", 422
+	
+	new_bid = Bid(bid=10,user_id=0, game_id=game_id)
+	db.session.add(new_bid)
+	db.session.commit()
 
+	# IDK if the_game["bids"] is automatically updated
 	the_game = {**the_game, "bids": [*the_game["bids"], request.json]}
 	socketio.emit(GAME_PATH, the_game)
 	return {}, 201
