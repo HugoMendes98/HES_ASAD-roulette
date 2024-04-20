@@ -13,6 +13,7 @@ db = SQLAlchemy(app)
 # need to import after db init to avoid circular imports
 from models.game import Game
 from models.user import User
+from models.bid import Bid
 
 
 CORS(app, origins="*")
@@ -22,6 +23,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", logger=True)
 
 # The "only" game (demo/test purpose)
 the_game = {"type": "idle", "round": 0}
+#the_game = the_game = Game.query.get(1)
 GAME_PATH = "/games/1"
 
 
