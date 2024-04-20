@@ -1,99 +1,33 @@
 import random
-from enum import Enum
+
 
 from flask import Flask, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from flask_sqlalchemy import SQLAlchemy
 
-# init db
-app = Flask(__name__)
-app.config ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../../roulette.db'
-db = SQLAlchemy(app)
-
-# need to import after db init to avoid circular imports
-from models.game import Game
-from models.user import User
-from models.bid import Bid
-
-
-CORS(app, origins="*")
-socketio = SocketIO(app, cors_allowed_origins="*", logger=True)
-
-class GameType(Enum):
-	BIDABLE = "bid-able", 0
-	IDLE = "idle", 1
-	WAITING = "waiting", 2
-	RESULT = "results", 3
+from .models import register_models
 
 # The "only" game (demo/test purpose)
-#the_game = {"type": "idle", "round": 0}
-the_game = the_game = Game.query.get(1) # not a dict !!!
-GAME_PATH = "/games/1"
+the_game = {"type": "idle", "round": 0}
 
+def create_app():
+    app = Flask(__name__)
+    app.config ['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+    register_models(app)
 
-@app.post("/games/<game_id>/bet")
-def add_bet(game_id):
-	if game_id != "1":
-		return "NotFound", 404
+    CORS(app, origins="*")
+    socketio = SocketIO(app, cors_allowed_origins="*", logger=True)
+    return app, socketio
 
-	global the_game
+def main():
+    # init db
+    
+    app, socketio = create_app()
 
-	# TODO: validate input
-	if the_game["type"] != "bid-able":
-		return "NotPlayable", 422
-	
-	new_bid = Bid(bid=10,user_id=0, game_id=game_id)
-	db.session.add(new_bid)
-	db.session.commit()
+    
 
-	# IDK if the_game["bids"] is automatically updated
-	the_game = {**the_game, "bids": [*the_game["bids"], request.json]}
-	socketio.emit(GAME_PATH, the_game)
-	return {}, 201
-
-
-def event_loop():
-	# TODO: to remove -> Run async loops for auto-managed games
-	global the_game
-
-	# Wait potential socket connections
-	socketio.sleep(5)
-
-	time = 5
-
-	# (demo/test purpose)
-	while True:
-		socketio.emit(GAME_PATH, the_game)
-		socketio.sleep(time)
-
-		# Can bid
-		the_game = {
-			"type": "bid-able",
-			"bids": [],
-			"round": the_game["round"] + 1,
-		}
-		socketio.emit(GAME_PATH, the_game)
-		socketio.sleep(time)
-
-		# Cannot bid, but no result yet
-		the_game = {**the_game, "type": "waiting"}
-		socketio.emit(GAME_PATH, the_game)
-		socketio.sleep(time)
-
-		# Results are returned
-		the_game = {
-			**the_game,
-			"type": "results",
-			"result": random.randint(0, 40),
-		}
-		socketio.emit(GAME_PATH, the_game)
-		socketio.sleep(time)
-
-		# "reset" for next round
-		the_game = {"type": "idle", "round": the_game["round"]}
-
+    socketio.start_background_task(event_loop, socketio)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
 
 if __name__ == "__main__":
-	socketio.start_background_task(event_loop)
-	socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    main()

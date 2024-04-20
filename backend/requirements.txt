@@ -2,3 +2,4 @@ flask>=2
 Flask-Cors>=4
 flask-socketio>=5
 flask_sqlalchemy>=3
+pytest
