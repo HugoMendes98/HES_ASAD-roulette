@@ -3,10 +3,22 @@ import random
 from flask import Flask, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from flask_sqlalchemy import SQLAlchemy
 
+# init db
 app = Flask(__name__)
+app.config ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../../roulette.db'
+db = SQLAlchemy(app)
+
+# need to import after db init to avoid circular imports
+from models.game import Game
+from models.user import User
+
+
 CORS(app, origins="*")
 socketio = SocketIO(app, cors_allowed_origins="*", logger=True)
+
+
 
 # The "only" game (demo/test purpose)
 the_game = {"type": "idle", "round": 0}
