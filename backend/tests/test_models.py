@@ -14,7 +14,7 @@ def client():
 
 def test_users(client):
     m = User.new(username='molasse')
-    assert m.username == "molasse"
+    assert m.username == "molasse" 
 
     
 

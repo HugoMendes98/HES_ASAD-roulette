@@ -2,10 +2,9 @@ from datetime import datetime
 from . import db
 
 # IDK if this is the standard
-from .round import Round
-from .user import User
+#from .round import Round
 
-from .__init__ import InOutBets, get_factor_from_InOutBets, Slots
+from . import InOutBets, get_factor_from_InOutBets, Slots
 
 
 class Bid(db.Model):
@@ -41,7 +40,7 @@ class Bid(db.Model):
         return "<Bid %r>" % self.id
 
     @classmethod
-    def new(cls, wager, inOutbet: InOutBets, user: User, round: Round):
+    def new(cls, wager, inOutbet: InOutBets, user, round):
         n = cls(
             wager=wager,
             inOutbet=inOutbet,
@@ -54,7 +53,7 @@ class Bid(db.Model):
         return n
 
     @classmethod
-    def get_bids_from_user_and_round(cls, user: User, round: Round):
+    def get_bids_from_user_and_round(cls, user, round):
         n = db.session.query(cls).filter_by(user_id=user.id, round_id=round.id).all()
         return n
 

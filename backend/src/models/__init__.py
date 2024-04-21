@@ -2,10 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-from .bid import Bid
-from .game import Game
-from .user import User
-from .round import Round
+
 
 
 from enum import Enum
@@ -121,4 +118,9 @@ class RoundStates(Enum):
 	IDLE = "idle", 1
 	WAITING = "waiting", 2
 	RESULT = "results", 3
-     
+
+
+from .bid import Bid
+from .user import User
+from .round import Round
+from .game import Game

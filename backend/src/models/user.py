@@ -1,8 +1,7 @@
 from . import db
 
-from .game import Game
-from .bid import Bid
-from .__init__ import InOutBets, RoundStates
+from . import Bid
+from . import InOutBets, RoundStates
 
 
 class User(db.Model):
@@ -23,7 +22,7 @@ class User(db.Model):
     # this can create a bet, update the bet value, remove the bet
     # raises error when the player has no enough money (or if the round is wrong, not bettable and so on)
     # if wager is + the player loses money, if wager is negative, user wants to get money back from bet
-    def bet(self, player_bet: InOutBets, wager, game: Game):
+    def bet(self, player_bet: InOutBets, wager, game):
         if wager == 0:
             raise Exception("Wager is 0")
 

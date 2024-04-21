@@ -1,9 +1,9 @@
 from . import db
 
 # IDK if this is the standard
-from .round import Round
+from . import Round
 
-from .__init__ import RoundStates
+from . import RoundStates
 
 
 # technically represent a "table"
