@@ -24,3 +24,9 @@ class Game(db.Model):
     def get_last_round(self) -> Round:
         # do e check the state of the round too ?
         return self.rounds.order_by(Round.round_number.desc()).first() 
+
+
+    def announce_result(self, winning_slot):
+        current_round = self.get_last_round()
+        Round.update_winning_slot(round_id=current_round.id, new_winning_slot=winning_slot)
+        current_round.pay_out()

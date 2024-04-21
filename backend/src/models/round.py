@@ -2,7 +2,8 @@ from datetime import datetime
 from . import db
 
 from .bid import Bid
-from .__init__ import InOutBets
+from .user import User
+from .__init__ import InOutBets, Slots
 
 
 class Round(db.Model):
@@ -17,6 +18,7 @@ class Round(db.Model):
     game_id = db.Column(db.Integer,  db.ForeignKey("game.id"), nullable=False)
 
     pot = db.Column(db.Integer, nullable=False, default=0)
+    winning_slot = db.Column(db.Integer, nullable=True)
 
     # let us get a list of round from game
     game = db.relationship("Game", backref="rounds")
@@ -32,13 +34,22 @@ class Round(db.Model):
         db.session.commit()
         return n
 
-    evaluate # distiribue les prix
-    # when the round
     def pay_out(self):
         winning_bids = self.get_winning_bids()
+        # in the current version of the roulette, we can only get 1 winner
         for bid in winning_bids:
             winnings = bid.payout()
-            
+            User.update_balance(user_id=bid.user_id, new_balance= bid.user_id.balance + winnings)
+
+
+    @classmethod
+    def update_winning_slot(cls, round_id, new_winning_slot: Slots) -> bool:
+        n: Round = cls.query.get(round_id)
+        if n:
+            n.winning_slot = new_winning_slot
+            db.session.commit()
+            return True
+        raise Exception("Round not found.")
 
     @classmethod
     def update_state(cls, round_id, new_state: InOutBets) -> bool:
@@ -58,8 +69,7 @@ class Round(db.Model):
             return True
         raise Exception("Round not found.")
 
-    # It is possible to have multiple winning bids (red + even),(player 1 + player 2)
-    # but never on the same InOutBet
+    # in the current version, we can only get 1 (or 0) winning bids
     def get_winning_bids(self):
         n = self.bids.filter_by(is_won=True).all()
         #n = db.session.query(Bid).filter_by(round_id=self.id, is_won=True).all()
