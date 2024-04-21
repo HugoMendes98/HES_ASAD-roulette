@@ -1,5 +1,10 @@
 from . import db
 
+from .game import Game
+from .bid import Bid
+from .__init__ import InOutBets, RoundStates
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
@@ -7,8 +12,87 @@ class User(db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
 
     # starts with 200$
-    balance = db.Column(db.Numeric(10, 2), nullable=False, default=200.00) 
-    password_hash = db.Column(db.String(64), nullable=False, default='placehodlerForSLOWHash')
-    
+    balance = db.Column(db.Numeric(10, 2), nullable=False, default=200.00)
+    password_hash = db.Column(
+        db.String(64), nullable=False, default="placehodlerForSLOWHash"
+    )
+
     def __repr__(self):
-        return '<User %r>' % self.username
+        return "<User %r>" % self.username
+
+    # this can create a bet, update the bet value, remove the bet
+    # raises error when the player has no enough money (or if the round is wrong, not bettable and so on)
+    # if wager is + the player loses money, if wager is negative, user wants to get money back from bet
+    def bet(self, player_bet: InOutBets, wager, game: Game):
+        if wager == 0:
+            raise Exception("Wager is 0")
+
+
+        # first get the current round of game:
+        curent_round = game.get_last_round()
+
+        # check if round is bidable
+        if curent_round.state != RoundStates.BIDABLE:
+            raise Exception("Round is not bidable.")
+
+        the_bid = Bid.get_bids_from_user_and_round(
+            user=self, round=curent_round
+        ).filter_by(inOutbet=player_bet)
+
+        if len(the_bid) > 1:
+            raise Exception("Cannot bet two or more bid from same player on  same round on same InOutBet. This is a critical error")
+
+        absolute_wager = abs(wager)
+        is_retrieving: bool = wager <= 0
+        is_new_bid = not the_bid  # if bet doesnt exists it is a new bet
+
+        if is_retrieving:
+            if is_new_bid:
+                raise Exception("Cannot retrieve money because no bets.")
+
+            computed_new_wager = the_bid.wager - absolute_wager
+            if computed_new_wager <= 0:
+                if computed_new_wager < 0:
+                    print(
+                        "player tried to remove more money than the bet, remove bet instead"
+                    )
+
+                # we should do these in a transaction
+                Bid.delete_bid(bid_id=the_bid.id)
+                # this will break if more than 9'999'999.99
+                User.update_balance(
+                    user_id=self.id, new_balance=self.balance + absolute_wager
+                )
+
+
+            else:  # update with with lower value
+                # we should do these in a transaction
+                Bid.update_wager(bid_id=the_bid.id, new_wager=computed_new_wager)
+                # this will break if more than 9'999'999.99
+                User.update_balance(
+                    user_id=self.id, new_balance=self.balance + absolute_wager
+                )
+
+        else:  # is playing
+            if self.balance - absolute_wager < 0:
+                raise Exception("User has not enough money in balance.")
+
+            # we should do these in a transaction
+            if is_new_bid:
+                Bid.new(inOutbet=player_bet, user=self, round=curent_round)
+            else:
+                computed_new_wager = the_bid.wager + absolute_wager
+                Bid.update_wager(bid_id=the_bid.id, new_wager=computed_new_wager)
+            
+            User.update_balance(
+                user_id=self.id, new_balance=self.balance - absolute_wager
+            )
+
+    @classmethod
+    def update_balance(cls, user_id, new_balance) -> bool:
+        n = cls.query.get(user_id)
+        if n:
+            n.balance = new_balance
+            db.session.commit()
+            return True
+        raise Exception("User not found.")

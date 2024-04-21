@@ -2,9 +2,10 @@ from datetime import datetime
 from . import db
 
 # IDK if this is the standard
-from models.round import Round
+from .round import Round
+from .user import User
 
-
+from .__init__ import InOutBets, get_factor_from_InOutBets
 
 
 class Bid(db.Model):
@@ -13,18 +14,20 @@ class Bid(db.Model):
 
     # it's deprecated, but I don't care
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    
+
     # max is 9'999'999.99
     wager = db.Column(db.Numeric(10, 2), nullable=False, default=10.0)
 
-    #is the value of the enum
-    bet = db.Column(db.Integer, nullable=False)
+    # is the value of the enum
+    inOutbet = db.Column(db.Integer, nullable=False)
 
     # is null when not decided true if won, false if lost
     is_won = db.Column(db.Boolean, nullable=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     round_id = db.Column(db.Integer, db.ForeignKey("round.id"), nullable=False)
+
+    # Maybe dont store this, and always compute it? But it is too pratctical to have Game.bids
     game_id = db.Column(db.Integer, db.ForeignKey("game.id"), nullable=False)
 
     # let us get a list of bids from user
@@ -32,42 +35,48 @@ class Bid(db.Model):
     # let us get a list of bids from round
     round = db.relationship("Round", backref="bids")
     # let us get a list of bids from game
-    round = db.relationship("Game", backref="bids")
+    game = db.relationship("Game", backref="bids")
 
     def __repr__(self):
         return "<Bid %r>" % self.id
 
     @classmethod
-    def new(cls, wager, bet, user_id, round_id):
-        n = cls(wager=wager, bet=bet, user_id=user_id, round_id=round_id, game_id=Round.get()) # TODO
+    def new(cls, wager, inOutbet: InOutBets, user: User, round: Round):
+        n = cls(
+            wager=wager,
+            inOutbet=inOutbet,
+            user_id=user.id,
+            round_id=round.id,
+            game_id=round.game_id,
+        )
         db.session.add(n)
         db.session.commit()
         return n
 
     @classmethod
-    def get_bids_from_user_and_round(cls,user_id,round_id):
-        n = db.session.query(Bid).filter_by(user_id=user_id, round_id=round_id).all()
+    def get_bids_from_user_and_round(cls, user: User, round: Round):
+        n = db.session.query(cls).filter_by(user_id=user.id, round_id=round.id).all()
         return n
 
     @classmethod
-    def get_bids_from_user_and_round(cls,user_id,round_id):
-        n = db.session.query(Bid).filter_by(user_id=user_id, round_id=round_id).all()
-        return n
-    
-    @classmethod
-    def get_bids_from_user(cls,user_id):
-        n = db.session.query(Bid).filter_by(user_id=user_id).all()
-        return n
+    def update_wager(cls, bid_id, new_wager) -> bool:
+        n = cls.query.get(bid_id)
+        if n:
+            n.wager = new_wager
+            db.session.commit()
+            return True
+        raise Exception("Bid not found.")
 
     @classmethod
-    def get_bids_from_round(cls,round_id):
-        n = db.session.query(Bid).filter_by(round_id=round_id).all()
-        return n
-
-    # It is possible to have multiple winning bids (red + even),(player 1 + player 2)
-    @classmethod
-    def get_winning_bids_from_round(cls,round_id):
-        n = db.session.query(Bid).filter_by(round_id=round_id,is_won=True).all()
-        return n
+    def delete_bid(cls, bid_id) -> bool:
+        n = cls.query.get(bid_id)
+        if n:
+            db.session.delete(n)
+            db.session.commit()
+            return True
+        raise Exception("Bid not found.")
 
     # if more specifif getter ar needed, just add them
+
+    def payout(self):
+        return self.wager * get_factor_from_InOutBets(self.inOutbet)

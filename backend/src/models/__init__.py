@@ -15,7 +15,7 @@ from enum import Enum
 def register_models(app):
     db.init_app(app)
 
-class Bets(Enum):
+class InOutBets(Enum):
     ONE = 1
     TWO = 2
     THREE = 3
@@ -64,6 +64,17 @@ class Bets(Enum):
     ROW_ONE = 46  # mod 3 = 1
     ROW_TWO = 47  # mod 3 = 2
     ROW_THREE = 48  # mod 3 = 0
+    # the connected numbers are missing:
+    # split, street,trio,corner/square,basket/5,line/doublestreet
+
+def get_factor_from_InOutBets(inOutBets:InOutBets):
+    if inOutBets < 37:
+        return 36
+    if inOutBets < 43:
+        return 2
+    if inOutBets < 49:
+        return 3
+
 
 class Slots(Enum):
     DOUBLE_ZERO = -1
