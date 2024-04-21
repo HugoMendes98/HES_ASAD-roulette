@@ -71,14 +71,9 @@ class Bid(db.Model):
     def update_is_won(cls, bid_id, winning_slot:Slots) -> bool:
         n : Bid = cls.query.get(bid_id)
         if n:
-            if n.inOutbet == winning_slot:
-                n.is = new_wager
-                db.session.commit()
-                return True
-            else:
-                n.wager = new_wager
-                db.session.commit()
-                return True
+            n.is_won = n.inOutbet == winning_slot
+            db.session.commit()
+            return True
         raise Exception("Bid not found.")
 
     @classmethod

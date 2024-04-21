@@ -3,13 +3,13 @@ from . import db
 
 from .bid import Bid
 from .user import User
-from .__init__ import InOutBets, Slots
+from .__init__ import InOutBets, Slots, RoundStates
 
 
 class Round(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    state = db.Column(db.Integer, nullable=False)
+    state = db.Column(db.Integer, nullable=False, default=RoundStates.BIDABLE)
 
     # it's deprecated, but I don't care
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -51,6 +51,10 @@ class Round(db.Model):
             return True
         raise Exception("Round not found.")
 
+    def update_bids_after_result(self):
+        for bid in self.bids:
+            Bid.update_is_won(bid.id,self.winning_slot)
+
     @classmethod
     def update_state(cls, round_id, new_state: InOutBets) -> bool:
         n: Round = cls.query.get(round_id)
@@ -68,12 +72,13 @@ class Round(db.Model):
             db.session.commit()
             return True
         raise Exception("Round not found.")
-
+    
     # in the current version, we can only get 1 (or 0) winning bids
     def get_winning_bids(self):
         n = self.bids.filter_by(is_won=True).all()
         #n = db.session.query(Bid).filter_by(round_id=self.id, is_won=True).all()
         return n
+
 
 
 
