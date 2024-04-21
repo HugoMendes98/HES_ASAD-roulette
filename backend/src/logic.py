@@ -1,10 +1,10 @@
 
-from flask import request, current_app
+from flask import request, current_app, jsonify
 from . import roulette_logic_blueprint
+from .models import User, InOutBets
 
 GAME_PATH = "/games/1"
 
-the_game = {"type": "bid-able", "bids": []}
 
 @roulette_logic_blueprint.post("/<game_id>/bet")
 def add_bet(game_id):
@@ -15,21 +15,23 @@ def add_bet(game_id):
 
     if game_id != "1":
         return "NotFound", 404
-
-    # TODO: validate input
-    if the_game["type"] != "bid-able":
-        return "NotPlayable", 422
-    # user.bet(game_id, inout_bets.enum, wager)
-    # IDK if the_game["bids"] is automatically updated
-    # the_game = {**the_game, "bids": [*the_game["bids"], request.json]}
     
-    #1 broacast game status
+    r = request.json
+    username = r["username"]
+    try:
+        bid = User.get(username).bet(InOutBets(r["position_id"]), r["value"], 1)
+    except Exception as exc:
+        print("add_bet route: exception occured:", exc)
+        return "error", 422
+
+    # TODO: broacast game status
     
     current_app.socketio_instance.emit(GAME_PATH, the_game)
     return {}, 201
 
+@roulette_logic_blueprint.get("/<game_id>/status")
 def get_game_satus():
-    pass
+    return jsonify({})
 
 def event_loop(socketio):
     # TODO: to remove -> Run async loops for auto-managed games

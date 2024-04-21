@@ -19,5 +19,6 @@ def test_users(client):
     
 
 def test_bid(client):
-    r = client.post("/games/1/bet", data=json.dumps(dict(foo='bar')), content_type='application/json')
+    User.new(username='oly')
+    r = client.post("/games/1/bet", data=json.dumps(dict(position_id='1', value=5, username="oly")), content_type='application/json')
     assert r.status_code == 201
