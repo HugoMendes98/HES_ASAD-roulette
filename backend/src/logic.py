@@ -1,25 +1,35 @@
 
-from flask import request
+from flask import request, current_app
 from . import roulette_logic_blueprint
 
 GAME_PATH = "/games/1"
 
-the_game = {}
+the_game = {"type": "bid-able", "bids": []}
 
-@roulette_logic_blueprint.post("/games/<game_id>/bet")
+@roulette_logic_blueprint.post("/<game_id>/bet")
 def add_bet(game_id):
+    # request json:
+    # "position_id":
+    # "value" signed integer
+    global the_game
+
     if game_id != "1":
         return "NotFound", 404
 
     # TODO: validate input
     if the_game["type"] != "bid-able":
         return "NotPlayable", 422
-
+    # user.bet(game_id, inout_bets.enum, wager)
     # IDK if the_game["bids"] is automatically updated
-    the_game = {**the_game, "bids": [*the_game["bids"], request.json]}
-    socketio.emit(GAME_PATH, the_game)
+    # the_game = {**the_game, "bids": [*the_game["bids"], request.json]}
+    
+    #1 broacast game status
+    
+    current_app.socketio_instance.emit(GAME_PATH, the_game)
     return {}, 201
 
+def get_game_satus():
+    pass
 
 def event_loop(socketio):
     # TODO: to remove -> Run async loops for auto-managed games
@@ -43,8 +53,8 @@ def event_loop(socketio):
         }
         socketio.emit(GAME_PATH, the_game)
         socketio.sleep(time)
-
-        # Cannot bid, but no result yet
+        
+        # Cannot bid, send result
         the_game = {**the_game, "type": "waiting"}
         socketio.emit(GAME_PATH, the_game)
         socketio.sleep(time)
