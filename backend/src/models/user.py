@@ -12,3 +12,19 @@ class User(db.Model):
     
     def __repr__(self):
         return '<User %r>' % self.username
+    
+    @classmethod
+    def get(cls, username):
+        return db.session.query(cls).filter_by(username=username).one_or_none()
+    
+
+    @classmethod
+    def new(cls, username, password_hash=None):
+        args = {"username": username}
+        if password_hash is not None:
+            args["password_hash"] = password_hash
+        new_user = cls(**args)
+        db.session.add(new_user)
+        db.session.commit()
+        return new_user
+    
