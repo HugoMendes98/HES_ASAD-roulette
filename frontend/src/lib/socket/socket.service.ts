@@ -10,4 +10,5 @@ export class SocketService {
 	public onGameState$(gameId: number) {
 		return this.socket.fromEvent<GameState>(`/games/${gameId}`);
 	}
+
 }
