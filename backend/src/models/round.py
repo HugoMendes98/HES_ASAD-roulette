@@ -9,7 +9,7 @@ from . import InOutBets, Slots, RoundStates
 class Round(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    state = db.Column(db.Integer, nullable=False, default=RoundStates.BIDABLE)
+    state = db.Column(db.Integer, nullable=False, default=RoundStates.IDLE.value[1])
 
     # it's deprecated, but I don't care
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
@@ -17,7 +17,7 @@ class Round(db.Model):
     round_number = db.Column(db.Integer, nullable=False)
     game_id = db.Column(db.Integer,  db.ForeignKey("game.id"), nullable=False)
 
-    pot = db.Column(db.Integer, nullable=False, default=0)
+    #pot = db.Column(db.Integer, nullable=False, default=0)
     winning_slot = db.Column(db.Integer, nullable=True)
 
     # let us get a list of round from game
@@ -29,10 +29,22 @@ class Round(db.Model):
     
     @classmethod
     def new(cls, round_number, game):
-        n = cls(round_number=round_number, game_id=game.id)
-        db.session.add(n)
+        args = {"round_number": round_number, "game_id": game.id}
+        new_round = cls(**args)
+        db.session.add(new_round)
         db.session.commit()
-        return n
+        return new_round
+    
+    '''
+        args = {"username": username}
+        if password_hash is not None:
+            args["password_hash"] = password_hash
+        new_user = cls(**args)
+        db.session.add(new_user)
+        db.session.commit()
+        return new_user
+        
+    '''
 
     def pay_out(self):
         winning_bids = self.get_winning_bids()

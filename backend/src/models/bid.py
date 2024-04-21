@@ -1,9 +1,6 @@
 from datetime import datetime
 from . import db
 
-# IDK if this is the standard
-#from .round import Round
-
 from . import InOutBets, get_factor_from_InOutBets, Slots
 
 
@@ -43,7 +40,7 @@ class Bid(db.Model):
     def new(cls, wager, inOutbet: InOutBets, user, round):
         n = cls(
             wager=wager,
-            inOutbet=inOutbet,
+            inOutbet=inOutbet.value,
             user_id=user.id,
             round_id=round.id,
             game_id=round.game_id,

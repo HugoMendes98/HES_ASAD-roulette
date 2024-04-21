@@ -1,6 +1,6 @@
 import json
 import pytest
-from backend.src.models import db, User, Game, Bid
+from backend.src.models import db, User, Game, Bid, Round, RoundStates, InOutBets, Slots
 from backend.src.app import create_app
 
 @pytest.fixture
@@ -14,9 +14,14 @@ def client():
 
 def test_users(client):
     m = User.new(username='molasse')
-    assert m.username == "molasse" 
+    assert m.username == "molasse"
 
-    
+#def new(cls, wager, inOutbet: InOutBets, user, round):
+def test_bid_update(client):
+    g = Game.new()
+    u = User.new(password_hash="asdkdlj",username="Jean Test")
+    r = Round.new(round_number=1, game=g)
+    b = Bid.new(inOutbet=InOutBets.FIFTEEN, wager=10, user=u, round=r)
 
 def test_bid(client):
     User.new(username='oly')

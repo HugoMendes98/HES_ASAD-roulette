@@ -2,9 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-
-
-
 from enum import Enum
 
 

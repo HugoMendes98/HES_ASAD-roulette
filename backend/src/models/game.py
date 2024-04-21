@@ -1,6 +1,5 @@
 from . import db
 
-# IDK if this is the standard
 from . import Round
 
 from . import RoundStates
@@ -16,10 +15,10 @@ class Game(db.Model):
 
     @classmethod
     def new(cls):
-        n = cls()
-        db.session.add(n)
+        new_game = cls()
+        db.session.add(new_game)
         db.session.commit()
-        return n
+        return new_game
 
     
     def get_last_round(self) -> Round:
@@ -27,10 +26,15 @@ class Game(db.Model):
         return self.rounds.order_by(Round.round_number.desc()).first() 
 
 
-    def go_to_bidable(self):
+    def go_to_idle(self):
         previous_round = self.get_last_round()
         #TODO if no last round
         Round.new(game=self,round_number=previous_round.round_number + 1)
+        Round.update_state(round_id=previous_round.id, new_state=RoundStates.IDLE)
+
+    def go_to_bidable(self):
+        current_round = self.get_last_round()
+        Round.new(game=self,round_number=current_round.round_number + 1)
 
     def go_to_waiting(self):
         current_round = self.get_last_round()
@@ -43,8 +47,6 @@ class Game(db.Model):
         current_round.update_bids_after_result()
         current_round.pay_out()
 
-    def go_to_idle(self):
-        current_round = self.get_last_round()
-        Round.update_state(round_id=current_round.id, new_state=RoundStates.IDLE)
+
 
 
