@@ -21,7 +21,7 @@ class Round(db.Model):
     winning_slot = db.Column(db.Integer, nullable=True)
 
     # let us get a list of round from game
-    game = db.relationship("Game", backref="rounds")
+    game = db.relationship("Game", backref="rounds", order_by='Round.round_number.desc()')
 
     
     def __repr__(self):
@@ -76,6 +76,7 @@ class Round(db.Model):
             return True
         raise Exception("Round not found.")
 
+    '''
     @classmethod
     def update_pot(cls, round_id, new_pot) -> bool:
         n: Round = cls.query.get(round_id)
@@ -84,11 +85,11 @@ class Round(db.Model):
             db.session.commit()
             return True
         raise Exception("Round not found.")
-    
+    '''
+
     # in the current version, we can only get 1 (or 0) winning bids
     def get_winning_bids(self):
-        n = self.bids.filter_by(is_won=True).all()
-        #n = db.session.query(Bid).filter_by(round_id=self.id, is_won=True).all()
+        n = db.session.query(Bid).filter_by(round_id=self.id, is_won=True).all()
         return n
 
 
