@@ -61,7 +61,7 @@ class InOutBets(Enum):
     # the connected numbers are missing:
     # split, street,trio,corner/square,basket/5,line/doublestreet
 
-def get_factor_from_InOutBets(inOutBets:InOutBets):
+def get_factor_from_InOutBets(inOutBets):
     if inOutBets < 37:
         return 36
     if inOutBets < 43:

@@ -40,7 +40,8 @@ def test_payout_full(client):
     r = g.get_last_round()
     assert r.round_number == 1
     assert r.state == RoundStates.IDLE.value[1]
-    assert r.timestamp  # is not none ?
+    ts = r.timestamp
+    assert ts  # is not none ?
     assert r.game_id == g.id
     assert not r.winning_slot
     assert not r.get_winning_bids()
@@ -80,10 +81,37 @@ def test_payout_full(client):
     r = g.get_last_round()
     assert r.round_number == 1
     assert r.state == RoundStates.BIDABLE.value[1]
-    assert r.timestamp  # is not none ?
+    assert ts == r.timestamp
     assert r.game_id == g.id
     assert not r.winning_slot
     assert not r.get_winning_bids()
+
+    #------------------------------
+    g.go_to_waiting()
+
+    r = g.get_last_round()
+    assert r.round_number == 1
+    assert r.state == RoundStates.WAITING.value[1]
+    assert ts == r.timestamp
+    assert r.game_id == g.id
+    assert not r.winning_slot
+    assert not r.get_winning_bids()
+
+    with pytest.raises(Exception):
+        u_1.bet(game=g, player_bet=InOutBets.ELEVEN, wager=10)
+
+    #-----------------------------
+    g.go_to_result(Slots.ELEVEN)
+
+    r = g.get_last_round()
+    assert r.round_number == 1
+    assert r.state == RoundStates.RESULT.value[1]
+    assert ts == r.timestamp
+    assert r.game_id == g.id
+    assert r.winning_slot == Slots.ELEVEN.value
+    w_b = r.get_winning_bids()
+    assert(len(w_b)==1)
+    assert(w_b[0].is_won)
 
 
 def test_bid(client):

@@ -72,7 +72,7 @@ class Bid(db.Model):
         raise Exception("Bid not found.")
     
     @classmethod
-    def update_is_won(cls, bid_id, winning_slot:Slots) -> bool:
+    def update_is_won(cls, bid_id, winning_slot) -> bool:
         n : Bid = cls.query.get(bid_id)
         if n:
             n.is_won = n.inOutbet == winning_slot

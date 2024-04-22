@@ -103,6 +103,11 @@ class User(db.Model):
         return db.session.query(cls).filter_by(username=username).one_or_none()
 
     @classmethod
+    def get_by_id(cls, user_id):
+        return db.session.query(cls).filter_by(id=user_id).one_or_none()
+
+
+    @classmethod
     def new(cls, username, password_hash=None):
         args = {"username": username}
         if password_hash is not None:

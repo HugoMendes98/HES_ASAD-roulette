@@ -39,24 +39,18 @@ class Game(db.Model):
 
     def go_to_bidable(self):
         current_round = self.get_last_round()
-        Round.new(game=self, round_number=current_round.round_number + 1)
-        Round.update_state(
-            round_id=current_round.id, new_state=RoundStates.BIDABLE.value[1]
-        )
+        # Round.new(game=self, round_number=current_round.round_number + 1)
+        current_round.update_state(new_state=RoundStates.BIDABLE)
 
     def go_to_waiting(self):
         current_round = self.get_last_round()
-        Round.update_state(
-            round_id=current_round.id, new_state=RoundStates.WAITING.value[1]
-        )
+        current_round.update_state(new_state=RoundStates.WAITING)
 
     def go_to_result(self, winning_slot):
         current_round = self.get_last_round()
         Round.update_winning_slot(
             round_id=current_round.id, new_winning_slot=winning_slot
         )
-        Round.update_state(
-            round_id=current_round.id, new_state=RoundStates.RESULT.value[1]
-        )
+        current_round.update_state(new_state=RoundStates.RESULT)
         current_round.update_bids_after_result()
         current_round.pay_out()
