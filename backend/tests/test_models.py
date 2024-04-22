@@ -32,8 +32,8 @@ def test_payout_full(client):
     g = Game.new()
     u_1 = User.new(password_hash="asdkdlj", username="Jean Test")
     u_2 = User.new(password_hash="asdkdlj", username="Test Andy")
+    # ---------------------------------------
     g.go_to_idle()
-
 
     assert not u_1.bids
 
@@ -46,16 +46,37 @@ def test_payout_full(client):
     assert not r.get_winning_bids()
 
     with pytest.raises(Exception):
-        u_1.bet(game=g,player_bet=InOutBets.ELEVEN,wager=10)
-    
+        u_1.bet(game=g, player_bet=InOutBets.ELEVEN, wager=10)
+
+    # --------------------------------------
     g.go_to_bidable()
 
-    assert u_1.bet(game=g,player_bet=InOutBets.ELEVEN,wager=10)
-    assert u_2.bet(game=g,player_bet=InOutBets.TWELVE,wager=30)
+    assert u_1.bet(game=g, player_bet=InOutBets.ELEVEN, wager=10)
+    assert u_2.bet(game=g, player_bet=InOutBets.TWELVE, wager=30)
 
     assert u_1.balance == 190
     assert u_2.balance == 170
-    
+
+    assert len(u_2.bids) == 1
+
+    b_1 : Bid = Bid.get_bids_from_user_and_round_with_bet(
+        user=u_1, round=r, player_bet=InOutBets.ELEVEN
+    )
+    b_2 : Bid = Bid.get_bids_from_user_and_round_with_bet(
+        user=u_2, round=r, player_bet=InOutBets.TWELVE
+    )
+
+    assert not b_2.is_won
+    assert b_2.wager == 30
+
+    assert u_2.bet(game=g, player_bet=InOutBets.TWELVE, wager=-20)
+    assert u_2.balance == 190
+    assert b_2.wager == 10
+
+
+    with pytest.raises(Exception):
+        u_1.bet(game=g, player_bet=InOutBets.ELEVEN, wager=10000)
+
     r = g.get_last_round()
     assert r.round_number == 1
     assert r.state == RoundStates.BIDABLE.value[1]
@@ -63,9 +84,6 @@ def test_payout_full(client):
     assert r.game_id == g.id
     assert not r.winning_slot
     assert not r.get_winning_bids()
-
-
-    
 
 
 def test_bid(client):

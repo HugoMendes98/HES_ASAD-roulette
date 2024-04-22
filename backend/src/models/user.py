@@ -35,11 +35,12 @@ class User(db.Model):
         the_bid = Bid.get_bids_from_user_and_round_with_bet(
             user=self, round=curent_round, player_bet=player_bet
         )
-
+        ''' removed from now, imp
         if len(the_bid) > 1:
             raise Exception(
                 "Cannot bet two or more bid from same player on  same round on same InOutBet. This is a critical error"
             )
+        '''
 
         absolute_wager = abs(wager)
         is_retrieving: bool = wager <= 0
