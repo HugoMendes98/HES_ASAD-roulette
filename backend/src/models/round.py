@@ -9,10 +9,11 @@ from . import InOutBets, Slots, RoundStates
 class Round(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    state = db.Column(db.Integer, nullable=False, default=RoundStates.IDLE.value[1])
+    state = db.Column(db.Integer, nullable=False, default=RoundStates.IDLE.value)
 
     # it's deprecated, but I don't care
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    next_state_timestamp = db.Column(db.DateTime)
 
     round_number = db.Column(db.Integer, nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey("game.id"), nullable=False)
@@ -50,6 +51,7 @@ class Round(db.Model):
     def pay_out(self):
         winning_bids = self.get_winning_bids()
         # in the current version of the roulette, we can only get 1 winner
+        winning_bids_out = []
         for bid in winning_bids:
             winnings = bid.payout()
             winner = User.get_by_id(bid.user_id)
@@ -57,6 +59,8 @@ class Round(db.Model):
             User.update_balance(
                 user_id=bid.user_id, new_balance=new_balance
             )
+            winning_bids_out.append({"username":winner.username, "winnings":winnings, "new_balance": new_balance})
+        return winning_bids_out
 
     @classmethod
     def update_winning_slot(cls, round_id, new_winning_slot: Slots) -> bool:
@@ -71,8 +75,9 @@ class Round(db.Model):
         for bid in self.bids:
             Bid.update_is_won(bid.id, self.winning_slot)
 
-    def update_state(self, new_state: InOutBets) -> bool:
-        self.state = new_state.value[1]
+    def update_state(self, new_state: InOutBets, next_state_timestamp=None) -> bool:
+        self.state = new_state.value
+        self.next_state_timestamp = next_state_timestamp
         db.session.commit()
         return True
 
@@ -91,3 +96,20 @@ class Round(db.Model):
     def get_winning_bids(self):
         n = db.session.query(Bid).filter_by(round_id=self.id, is_won=True).all()
         return n
+
+    def to_dict(self):
+        state = RoundStates(self.state)
+        round_dict = dict(state=state.name)
+        if self.next_state_timestamp is not None:
+            next_state = self.next_state_timestamp - self.timestamp
+            round_dict["next_state_seconds"] = next_state
+        if state == RoundStates.BIDABLE:
+            bets = {bet.inOutbet: {"username": bet.user.username, "value": int(bet.wager)} for bet in self.bids}
+            round_dict["bets"] = bets
+        elif state == RoundStates.RESULT:
+            round_dict["result"] = self.round_number
+        elif state == RoundStates.IDLE:
+            pass
+        elif state == RoundStates.WAITING:
+            pass
+        return round_dict

@@ -41,22 +41,22 @@ class Game(db.Model):
         else:
             Round.new(game=self, round_number=previous_round.round_number + 1)
         # default to idle so no need
-        # Round.update_state(round_id=previous_round.id, new_state=RoundStates.IDLE.value[1])
+        # Round.update_state(round_id=previous_round.id, new_state=RoundStates.IDLE.value)
 
-    def go_to_bidable(self):
+    def go_to_bidable(self, next_state_timestamp=None):
         current_round = self.get_last_round()
         # Round.new(game=self, round_number=current_round.round_number + 1)
-        current_round.update_state(new_state=RoundStates.BIDABLE)
+        current_round.update_state(RoundStates.BIDABLE, next_state_timestamp)
 
-    def go_to_waiting(self):
+    def go_to_waiting(self, next_state_timestamp=None):
         current_round = self.get_last_round()
-        current_round.update_state(new_state=RoundStates.WAITING)
+        current_round.update_state(RoundStates.WAITING, next_state_timestamp)
 
-    def go_to_result(self, winning_slot):
+    def go_to_result(self, winning_slot, next_state_timestamp=None):
         current_round = self.get_last_round()
         Round.update_winning_slot(
             round_id=current_round.id, new_winning_slot=winning_slot
         )
-        current_round.update_state(new_state=RoundStates.RESULT)
+        current_round.update_state(RoundStates.RESULT, next_state_timestamp)
         current_round.update_bids_after_result()
         current_round.pay_out()

@@ -108,10 +108,10 @@ class Slots(Enum):
     THIRTY_SIX = 36
 
 class RoundStates(Enum):
-	BIDABLE = "bid-able", 0
-	IDLE = "idle", 1
-	WAITING = "waiting", 2
-	RESULT = "results", 3
+	BIDABLE = 0
+	IDLE = 1
+	WAITING = 2
+	RESULT = 3
 
 
 from .bid import Bid

@@ -39,7 +39,7 @@ def test_payout_full(client):
 
     r = g.get_last_round()
     assert r.round_number == 1
-    assert r.state == RoundStates.IDLE.value[1]
+    assert r.state == RoundStates.IDLE.value
     ts = r.timestamp
     assert ts  # is not none ?
     assert r.game_id == g.id
@@ -80,7 +80,7 @@ def test_payout_full(client):
 
     r = g.get_last_round()
     assert r.round_number == 1
-    assert r.state == RoundStates.BIDABLE.value[1]
+    assert r.state == RoundStates.BIDABLE.value
     assert ts == r.timestamp
     assert r.game_id == g.id
     assert not r.winning_slot
@@ -91,7 +91,7 @@ def test_payout_full(client):
 
     r = g.get_last_round()
     assert r.round_number == 1
-    assert r.state == RoundStates.WAITING.value[1]
+    assert r.state == RoundStates.WAITING.value
     assert ts == r.timestamp
     assert r.game_id == g.id
     assert not r.winning_slot
@@ -105,7 +105,7 @@ def test_payout_full(client):
 
     r = g.get_last_round()
     assert r.round_number == 1
-    assert r.state == RoundStates.RESULT.value[1]
+    assert r.state == RoundStates.RESULT.value
     assert ts == r.timestamp
     assert r.game_id == g.id
     assert r.winning_slot == Slots.ELEVEN.value
@@ -115,7 +115,6 @@ def test_payout_full(client):
 
 
 def test_bid(client):
-
 
     User.new(username="oly")
     g = Game.get(1)

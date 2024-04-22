@@ -29,7 +29,7 @@ class User(db.Model):
         curent_round = game.get_last_round()
 
         # check if round is bidable
-        if curent_round.state != RoundStates.BIDABLE.value[1]:
+        if curent_round.state != RoundStates.BIDABLE.value:
             raise Exception("Round is not bidable.")
 
         the_bid = Bid.get_bids_from_user_and_round_with_bet(
@@ -87,7 +87,9 @@ class User(db.Model):
                 user_id=self.id, new_balance=self.balance - absolute_wager
             )
 
-        return True
+        return Bid.get_bids_from_user_and_round_with_bet(
+            user=self, round=curent_round, player_bet=player_bet
+        )
 
     @classmethod
     def update_balance(cls, user_id, new_balance) -> bool:

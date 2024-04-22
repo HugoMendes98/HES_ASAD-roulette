@@ -24,7 +24,6 @@ def create_app():
     return app
 
 def main():
-    # init db
     
     app = create_app()
 
