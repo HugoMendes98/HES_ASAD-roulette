@@ -4,6 +4,7 @@ import random
 from flask import Flask, request
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from threading import Event
 
 from .models import register_models
 from .logic import event_loop
@@ -28,8 +29,8 @@ def main():
     app = create_app()
 
     socketio = app.socketio_instance
-    socketio.start_background_task(event_loop, socketio)
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.start_background_task(event_loop, app)
+    socketio.run(app, host="localhost", port=5000)
 
 if __name__ == "__main__":
     main()

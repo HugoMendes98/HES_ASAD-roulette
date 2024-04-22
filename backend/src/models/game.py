@@ -28,18 +28,18 @@ class Game(db.Model):
 
     def get_last_round(self) -> Round:
         # do a check the state of the round too ?
-        # return self.rounds.order_by(Round.round_number.desc()).first()
+        return db.session.query(Round).filter_by(game=self).order_by(Round.round_number.desc()).first()
         if not self.rounds:
             return None
         else:
             return self.rounds[0]
 
-    def go_to_idle(self):
+    def go_to_idle(self, next_state_timestamp=None):
         previous_round = self.get_last_round()
         if not previous_round:
-            Round.new(round_number=1, game=self)
+            Round.new(round_number=1, game=self, next_state_timestamp=next_state_timestamp)
         else:
-            Round.new(game=self, round_number=previous_round.round_number + 1)
+            Round.new(game=self, round_number=previous_round.round_number + 1, next_state_timestamp=next_state_timestamp)
         # default to idle so no need
         # Round.update_state(round_id=previous_round.id, new_state=RoundStates.IDLE.value)
 

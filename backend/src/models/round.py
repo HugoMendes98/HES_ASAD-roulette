@@ -30,9 +30,8 @@ class Round(db.Model):
         return "<Round %r>" % self.id
 
     @classmethod
-    def new(cls, round_number, game):
-        args = {"round_number": round_number, "game_id": game.id}
-        new_round = cls(**args)
+    def new(cls, round_number, game, next_state_timestamp=None):
+        new_round = cls(round_number=round_number, game_id=game.id, next_state_timestamp=next_state_timestamp)
         db.session.add(new_round)
         db.session.commit()
         return new_round
@@ -101,13 +100,14 @@ class Round(db.Model):
         state = RoundStates(self.state)
         round_dict = dict(state=state.name)
         if self.next_state_timestamp is not None:
-            next_state = self.next_state_timestamp - self.timestamp
+            next_state = (self.next_state_timestamp - datetime.utcnow()).total_seconds()
+            next_state = 0 if next_state < 0 else next_state
             round_dict["next_state_seconds"] = next_state
         if state == RoundStates.BIDABLE:
             bets = {bet.inOutbet: {"username": bet.user.username, "value": int(bet.wager)} for bet in self.bids}
             round_dict["bets"] = bets
         elif state == RoundStates.RESULT:
-            round_dict["result"] = self.round_number
+            round_dict["winning_slot"] = self.winning_slot
         elif state == RoundStates.IDLE:
             pass
         elif state == RoundStates.WAITING:
