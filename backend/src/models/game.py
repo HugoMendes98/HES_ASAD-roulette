@@ -12,10 +12,16 @@ class Game(db.Model):
 
     def __repr__(self):
         return "<Game %r>" % self.id
+    
+    
+    @classmethod
+    def get(cls, game_id):
+        return db.session.query(cls).filter_by(id=game_id).one_or_none()
+    
 
     @classmethod
-    def new(cls):
-        new_game = cls()
+    def new(cls, id_=None):
+        new_game = cls(id=id_)
         db.session.add(new_game)
         db.session.commit()
         return new_game

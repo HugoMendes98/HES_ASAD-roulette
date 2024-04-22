@@ -1,7 +1,7 @@
 
 from flask import request, current_app, jsonify
 from . import roulette_logic_blueprint
-from .models import User, InOutBets
+from .models import User, InOutBets, Game
 
 GAME_PATH = "/games/1"
 
@@ -11,22 +11,23 @@ def add_bet(game_id):
     # request json:
     # "position_id":
     # "value" signed integer
-    global the_game
-
+    
     if game_id != "1":
         return "NotFound", 404
+    
+    game_one = Game.get(int(game_id))
     
     r = request.json
     username = r["username"]
     try:
-        bid = User.get(username).bet(InOutBets(r["position_id"]), r["value"], 1)
+        bid = User.get(username).bet(InOutBets(r["position_id"]), r["value"], game_one)
     except Exception as exc:
         print("add_bet route: exception occured:", exc)
-        return "error", 422
+        return f"error: {exc}", 422
 
     # TODO: broacast game status
     
-    current_app.socketio_instance.emit(GAME_PATH, the_game)
+    current_app.socketio_instance.emit(GAME_PATH, game_one)
     return {}, 201
 
 @roulette_logic_blueprint.get("/<game_id>/status")

@@ -115,10 +115,15 @@ def test_payout_full(client):
 
 
 def test_bid(client):
+
+
     User.new(username="oly")
+    g = Game.get(1)
+    g.go_to_idle()
+    g.go_to_bidable()
     r = client.post(
         "/games/1/bet",
-        data=json.dumps(dict(position_id="1", value=5, username="oly")),
+        data=json.dumps(dict(position_id=1, value=5, username="oly")),
         content_type="application/json",
     )
     assert r.status_code == 201

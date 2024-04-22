@@ -6,9 +6,6 @@ from enum import Enum
 
 
 
-def register_models(app):
-    db.init_app(app)
-
 class InOutBets(Enum):
     ONE = 1
     TWO = 2
@@ -121,3 +118,14 @@ from .bid import Bid
 from .user import User
 from .round import Round
 from .game import Game
+
+
+def configure_database(app):
+    with app.app_context():
+        db.create_all()
+        if Game.get(1) is None:
+            Game.new(1)
+
+def register_models(app):
+    db.init_app(app)
+    configure_database(app)
