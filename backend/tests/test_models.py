@@ -30,22 +30,42 @@ def test_bid_wager_update(client):
 
 def test_payout_full(client):
     g = Game.new()
-    u = User.new(password_hash="asdkdlj", username="Jean Test")
-    u = User.new(password_hash="asdkdlj", username="Test Andy")
-    test_r = g.go_to_idle()
+    u_1 = User.new(password_hash="asdkdlj", username="Jean Test")
+    u_2 = User.new(password_hash="asdkdlj", username="Test Andy")
+    g.go_to_idle()
 
-    print(test_r)
+
+    assert not u_1.bids
 
     r = g.get_last_round()
     assert r.round_number == 1
     assert r.state == RoundStates.IDLE.value[1]
-    print(r.timestamp)
     assert r.timestamp  # is not none ?
     assert r.game_id == g.id
     assert not r.winning_slot
     assert not r.get_winning_bids()
 
-    # b = Bid.new(inOutbet=InOutBets.FIFTEEN, wager=10, user=u, round=r)
+    with pytest.raises(Exception):
+        u_1.bet(game=g,player_bet=InOutBets.ELEVEN,wager=10)
+    
+    g.go_to_bidable()
+
+    assert u_1.bet(game=g,player_bet=InOutBets.ELEVEN,wager=10)
+    assert u_2.bet(game=g,player_bet=InOutBets.TWELVE,wager=30)
+
+    assert u_1.balance == 190
+    assert u_2.balance == 170
+    
+    r = g.get_last_round()
+    assert r.round_number == 1
+    assert r.state == RoundStates.BIDABLE.value[1]
+    assert r.timestamp  # is not none ?
+    assert r.game_id == g.id
+    assert not r.winning_slot
+    assert not r.get_winning_bids()
+
+
+    
 
 
 def test_bid(client):

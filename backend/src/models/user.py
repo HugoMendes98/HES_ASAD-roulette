@@ -25,20 +25,21 @@ class User(db.Model):
         if wager == 0:
             raise Exception("Wager is 0")
 
-
         # first get the current round of game:
         curent_round = game.get_last_round()
 
         # check if round is bidable
-        if curent_round.state != RoundStates.BIDABLE:
+        if curent_round.state != RoundStates.BIDABLE.value[1]:
             raise Exception("Round is not bidable.")
 
-        the_bid = Bid.get_bids_from_user_and_round(
-            user=self, round=curent_round
-        ).filter_by(inOutbet=player_bet)
+        the_bid = Bid.get_bids_from_user_and_round_with_bet(
+            user=self, round=curent_round, player_bet=player_bet
+        )
 
         if len(the_bid) > 1:
-            raise Exception("Cannot bet two or more bid from same player on  same round on same InOutBet. This is a critical error")
+            raise Exception(
+                "Cannot bet two or more bid from same player on  same round on same InOutBet. This is a critical error"
+            )
 
         absolute_wager = abs(wager)
         is_retrieving: bool = wager <= 0
@@ -62,7 +63,6 @@ class User(db.Model):
                     user_id=self.id, new_balance=self.balance + absolute_wager
                 )
 
-
             else:  # update with with lower value
                 # we should do these in a transaction
                 Bid.update_wager(bid_id=the_bid.id, new_wager=computed_new_wager)
@@ -77,14 +77,16 @@ class User(db.Model):
 
             # we should do these in a transaction
             if is_new_bid:
-                Bid.new(inOutbet=player_bet, user=self, round=curent_round)
+                Bid.new(inOutbet=player_bet, user=self, round=curent_round, wager=absolute_wager)
             else:
                 computed_new_wager = the_bid.wager + absolute_wager
                 Bid.update_wager(bid_id=the_bid.id, new_wager=computed_new_wager)
-            
+
             User.update_balance(
                 user_id=self.id, new_balance=self.balance - absolute_wager
             )
+
+        return True
 
     @classmethod
     def update_balance(cls, user_id, new_balance) -> bool:
@@ -94,11 +96,10 @@ class User(db.Model):
             db.session.commit()
             return True
         raise Exception("User not found.")
-    
+
     @classmethod
     def get(cls, username):
         return db.session.query(cls).filter_by(username=username).one_or_none()
-    
 
     @classmethod
     def new(cls, username, password_hash=None):
@@ -109,4 +110,3 @@ class User(db.Model):
         db.session.add(new_user)
         db.session.commit()
         return new_user
-    

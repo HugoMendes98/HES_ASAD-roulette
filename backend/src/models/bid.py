@@ -49,10 +49,18 @@ class Bid(db.Model):
         db.session.commit()
         return n
 
+    '''
     @classmethod
     def get_bids_from_user_and_round(cls, user, round):
         n = db.session.query(cls).filter_by(user_id=user.id, round_id=round.id).all()
         return n
+    '''
+    
+    @classmethod
+    def get_bids_from_user_and_round_with_bet(cls, user, round, player_bet : InOutBets):
+        n = db.session.query(cls).filter_by(user_id=user.id, round_id=round.id, inOutbet=player_bet.value).all()
+        return n
+
 
     @classmethod
     def update_wager(cls, bid_id, new_wager) -> bool:

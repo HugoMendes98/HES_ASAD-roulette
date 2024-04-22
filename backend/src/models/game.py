@@ -31,10 +31,9 @@ class Game(db.Model):
     def go_to_idle(self):
         previous_round = self.get_last_round()
         if not previous_round:
-            r = Round.new(round_number=1, game=self)
+            Round.new(round_number=1, game=self)
         else:
-            r = Round.new(game=self, round_number=previous_round.round_number + 1)
-        return r
+            Round.new(game=self, round_number=previous_round.round_number + 1)
         # default to idle so no need
         # Round.update_state(round_id=previous_round.id, new_state=RoundStates.IDLE.value[1])
 
