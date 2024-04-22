@@ -28,7 +28,6 @@ def main():
     app = create_app()
 
     socketio = app.socketio_instance
-
     socketio.start_background_task(event_loop, socketio)
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
 
