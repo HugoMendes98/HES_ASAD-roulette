@@ -31,7 +31,11 @@ class Round(db.Model):
 
     @classmethod
     def new(cls, round_number, game, next_state_timestamp=None):
-        new_round = cls(round_number=round_number, game_id=game.id, next_state_timestamp=next_state_timestamp)
+        new_round = cls(
+            round_number=round_number,
+            game_id=game.id,
+            next_state_timestamp=next_state_timestamp,
+        )
         db.session.add(new_round)
         db.session.commit()
         return new_round
@@ -55,10 +59,14 @@ class Round(db.Model):
             winnings = bid.payout()
             winner = User.get_by_id(bid.user_id)
             new_balance = winnings + winner.balance
-            User.update_balance(
-                user_id=bid.user_id, new_balance=new_balance
+            User.update_balance(user_id=bid.user_id, new_balance=new_balance)
+            winning_bids_out.append(
+                {
+                    "username": winner.username,
+                    "winnings": winnings,
+                    "new_balance": new_balance,
+                }
             )
-            winning_bids_out.append({"username":winner.username, "winnings":winnings, "new_balance": new_balance})
         return winning_bids_out
 
     @classmethod
@@ -104,7 +112,10 @@ class Round(db.Model):
             next_state = 0 if next_state < 0 else next_state
             round_dict["next_state_seconds"] = next_state
         if state == RoundStates.BIDABLE:
-            bets = {bet.inOutbet: {"username": bet.user.username, "value": int(bet.wager)} for bet in self.bids}
+            bets = {
+                bet.inOutbet: {"username": bet.user.username, "value": int(bet.wager)}
+                for bet in self.bids
+            }
             round_dict["bets"] = bets
         elif state == RoundStates.RESULT:
             round_dict["winning_slot"] = self.winning_slot

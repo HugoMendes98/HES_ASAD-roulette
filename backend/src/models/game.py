@@ -12,12 +12,10 @@ class Game(db.Model):
 
     def __repr__(self):
         return "<Game %r>" % self.id
-    
-    
+
     @classmethod
     def get(cls, game_id):
         return db.session.query(cls).filter_by(id=game_id).one_or_none()
-    
 
     @classmethod
     def new(cls, id_=None):
@@ -27,19 +25,25 @@ class Game(db.Model):
         return new_game
 
     def get_last_round(self) -> Round:
-        # do a check the state of the round too ?
-        return db.session.query(Round).filter_by(game=self).order_by(Round.round_number.desc()).first()
-        if not self.rounds:
-            return None
-        else:
-            return self.rounds[0]
+        return (
+            db.session.query(Round)
+            .filter_by(game=self)
+            .order_by(Round.round_number.desc())
+            .first()
+        )
 
     def go_to_idle(self, next_state_timestamp=None):
         previous_round = self.get_last_round()
         if not previous_round:
-            Round.new(round_number=1, game=self, next_state_timestamp=next_state_timestamp)
+            Round.new(
+                round_number=1, game=self, next_state_timestamp=next_state_timestamp
+            )
         else:
-            Round.new(game=self, round_number=previous_round.round_number + 1, next_state_timestamp=next_state_timestamp)
+            Round.new(
+                game=self,
+                round_number=previous_round.round_number + 1,
+                next_state_timestamp=next_state_timestamp,
+            )
         # default to idle so no need
         # Round.update_state(round_id=previous_round.id, new_state=RoundStates.IDLE.value)
 
