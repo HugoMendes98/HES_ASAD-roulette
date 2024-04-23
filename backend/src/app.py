@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
@@ -9,7 +11,9 @@ from .routes import roulette_website_blueprint
 
 def create_app():
 	app = Flask(__name__)
-	app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
+	app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+		"DATABASE_URI", "sqlite://"
+	)
 	register_models(app)
 	app.register_blueprint(roulette_logic_blueprint)
 	app.register_blueprint(roulette_website_blueprint)
