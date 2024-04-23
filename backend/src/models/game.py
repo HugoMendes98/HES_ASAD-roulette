@@ -23,17 +23,12 @@ class Game(db.Model):
 		return new_game
 
 	def get_last_round(self) -> Round:
-		# do a check the state of the round too ?
 		return (
 			db.session.query(Round)
 			.filter_by(game=self)
 			.order_by(Round.round_number.desc())
 			.first()
 		)
-		if not self.rounds:
-			return None
-		else:
-			return self.rounds[0]
 
 	def go_to_idle(self, next_state_timestamp=None):
 		previous_round = self.get_last_round()

@@ -1,16 +1,17 @@
 import json
+
 import pytest
+from backend.src.app import create_app
 from backend.src.models import (
-	db,
-	User,
-	Game,
 	Bid,
+	Game,
+	InOutBets,
 	Round,
 	RoundStates,
-	InOutBets,
 	Slots,
+	User,
+	db,
 )
-from backend.src.app import create_app
 
 
 @pytest.fixture
@@ -35,6 +36,87 @@ def test_bid_wager_update(client):
 	b = Bid.new(inOutbet=InOutBets.FIFTEEN, wager=10, user=u, round=r)
 	Bid.update_wager(b.id, 20)
 	assert b.wager == 20
+
+
+def test_perfect_bid_removal(client):
+	g = Game.new()
+	u = User.new(password_hash="asdkdlj", username="Jean Zero")
+	g.go_to_idle()
+	g.go_to_bidable()
+
+	assert u.balance == 200
+
+	b_1 = u.bet(game=g, player_bet=InOutBets.TEN, wager=10)
+
+	assert b_1.wager == 10
+	assert u.balance == 190
+
+	b_2 = u.bet(game=g, player_bet=InOutBets.TEN, wager=-10)
+
+	assert not b_2  # bid should have been deleted
+	assert u.balance == 200
+
+
+def test_negative_bet_cheating(client):
+	g = Game.new()
+	u = User.new(password_hash="asdkdlj", username="Jean Cheat")
+	g.go_to_idle()
+	g.go_to_bidable()
+
+	assert u.balance == 200
+
+	b_1 = u.bet(game=g, player_bet=InOutBets.TEN, wager=10)
+
+	assert b_1.wager == 10
+	assert u.balance == 190
+
+	b_2 = u.bet(game=g, player_bet=InOutBets.TEN, wager=-15)
+
+	assert not b_2  # bid should have been deleted
+	assert u.balance == 200
+
+
+def test_slot_reservation(client):
+	g = Game.new()
+	u_1 = User.new(password_hash="asdkdlj", username="Jean Test")
+	u_2 = User.new(password_hash="asdkdlj", username="Test Andy")
+	g.go_to_idle()
+	g.go_to_bidable()
+
+	b_1 = u_1.bet(game=g, player_bet=InOutBets.TEN, wager=10)
+	b_2 = u_2.bet(game=g, player_bet=InOutBets.TWENTY, wager=20)
+
+	assert b_1.wager == 10
+	assert b_2.wager == 20
+
+	with pytest.raises(Exception):
+		u_1.bet(game=g, player_bet=InOutBets.TWENTY, wager=10)
+
+	u_1.bet(game=g, player_bet=InOutBets.TEN, wager=10)
+
+	assert b_1.wager == 20
+
+
+def test_state_cycle(client):
+	g = Game.new()
+
+	for i in range(1, 100):
+		g.go_to_idle()
+		r = g.get_last_round()
+		assert r.round_number == i
+		assert r.state == RoundStates.IDLE.value
+		g.go_to_bidable()
+		r = g.get_last_round()
+		assert r.round_number == i
+		assert r.state == RoundStates.BIDABLE.value
+		g.go_to_waiting()
+		r = g.get_last_round()
+		assert r.round_number == i
+		assert r.state == RoundStates.WAITING.value
+		g.go_to_result(Slots.DOUBLE_ZERO)
+		r = g.get_last_round()
+		assert r.round_number == i
+		assert r.state == RoundStates.RESULT.value
 
 
 def test_payout_full(client):
@@ -69,12 +151,15 @@ def test_payout_full(client):
 
 	assert len(u_2.bids) == 1
 
-	b_1: Bid = Bid.get_bids_from_user_and_round_with_bet(
-		user=u_1, round=r, player_bet=InOutBets.ELEVEN
+	b_1: Bid = Bid.get_bids_from_round_with_bet(
+		round=r, player_bet=InOutBets.ELEVEN
 	)
-	b_2: Bid = Bid.get_bids_from_user_and_round_with_bet(
-		user=u_2, round=r, player_bet=InOutBets.TWELVE
+	b_2: Bid = Bid.get_bids_from_round_with_bet(
+		round=r, player_bet=InOutBets.TWELVE
 	)
+
+	assert b_1.user_id == u_1.id
+	assert b_2.user_id == u_2.id
 
 	assert not b_2.is_won
 	assert b_2.wager == 30
@@ -133,3 +218,19 @@ def test_bid(client):
 		content_type="application/json",
 	)
 	assert r.status_code == 201
+
+
+def test_login(client):
+	User.new(username="oly")
+	g = Game.get(1)
+	g.go_to_idle()
+	g.go_to_bidable()
+	r = client.post(
+		"/user/login",
+		data=json.dumps(dict(username="oly")),
+		content_type="application/json",
+	)
+	assert r.status_code == 200
+
+	assert r.json["username"] == "oly"
+	assert isinstance(r.json["balance"], int)

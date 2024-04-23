@@ -2,30 +2,28 @@ from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from . import roulette_logic_blueprint, roulette_website_blueprint
+from .logic import event_loop, roulette_logic_blueprint
 from .models import register_models
-from .routes import register_routes
+from .routes import roulette_website_blueprint
 
 
 def create_app():
 	app = Flask(__name__)
 	app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
-
 	register_models(app)
-	register_routes()
-
 	app.register_blueprint(roulette_logic_blueprint)
 	app.register_blueprint(roulette_website_blueprint)
 
 	CORS(app, origins="*")
-
-	return app, SocketIO(app, cors_allowed_origins="*", logger=True)
+	app.socketio_instance = SocketIO(app, cors_allowed_origins="*", logger=True)
+	return app
 
 
 def main():
-	app, socketio = create_app()
+	app = create_app()
 
-	# socketio.start_background_task(event_loop, app)
+	socketio = app.socketio_instance
+	socketio.start_background_task(event_loop, app)
 	socketio.run(app, host="localhost", port=5000)
 
 

@@ -10,7 +10,7 @@ class User(db.Model):
 	username = db.Column(db.String(100), unique=True, nullable=False)
 
 	# starts with 200$
-	balance = db.Column(db.Numeric(10, 2), nullable=False, default=200.00)
+	balance = db.Column(db.Integer, nullable=False, default=200.00)
 	password_hash = db.Column(
 		db.String(64), nullable=False, default="placehodlerForSLOWHash"
 	)
@@ -32,9 +32,17 @@ class User(db.Model):
 		if curent_round.state != RoundStates.BIDABLE.value:
 			raise Exception("Round is not bidable.")
 
-		the_bid = Bid.get_bids_from_user_and_round_with_bet(
-			user=self, round=curent_round, player_bet=player_bet
+		the_bid = Bid.get_bids_from_round_with_bet(
+			round=curent_round, player_bet=player_bet
 		)
+
+		is_new_bid = not the_bid  # if bet doesnt exists it is a new bet
+
+		# if bid already exists
+		if not is_new_bid:
+			if the_bid.user_id != self.id:
+				raise Exception("This slot is already taken by other user.")
+
 		""" removed from now, imp
         if len(the_bid) > 1:
             raise Exception(
@@ -44,7 +52,6 @@ class User(db.Model):
 
 		absolute_wager = abs(wager)
 		is_retrieving: bool = wager <= 0
-		is_new_bid = not the_bid  # if bet doesnt exists it is a new bet
 
 		if is_retrieving:
 			if is_new_bid:
@@ -52,16 +59,17 @@ class User(db.Model):
 
 			computed_new_wager = the_bid.wager - absolute_wager
 			if computed_new_wager <= 0:
-				if computed_new_wager < 0:
-					print(
-						"player tried to remove more money than the bet, remove bet instead"
-					)
+				print(
+					"player tried to remove more money than the bet, remove bet instead"
+				)
+				computed_new_wager = the_bid.wager
 
 				# we should do these in a transaction
 				Bid.delete_bid(bid_id=the_bid.id)
 				# this will break if more than 9'999'999.99
 				User.update_balance(
-					user_id=self.id, new_balance=self.balance + absolute_wager
+					user_id=self.id,
+					new_balance=self.balance + computed_new_wager,
 				)
 
 			else:  # update with with lower value
@@ -96,8 +104,8 @@ class User(db.Model):
 				user_id=self.id, new_balance=self.balance - absolute_wager
 			)
 
-		return Bid.get_bids_from_user_and_round_with_bet(
-			user=self, round=curent_round, player_bet=player_bet
+		return Bid.get_bids_from_round_with_bet(
+			round=curent_round, player_bet=player_bet
 		)
 
 	@classmethod

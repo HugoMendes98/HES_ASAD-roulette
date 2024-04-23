@@ -11,7 +11,7 @@ class Bid(db.Model):
 	timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 	# max is 9'999'999.99
-	wager = db.Column(db.Numeric(10, 2), nullable=False, default=10.0)
+	wager = db.Column(db.Integer, nullable=False, default=10.0)
 
 	# is the value of the enum
 	inOutbet = db.Column(db.Integer, nullable=False)
@@ -55,16 +55,19 @@ class Bid(db.Model):
         return n
     """
 
+	""" Deprecated, useful only if multiple player can bet on same InOutBets
+    @classmethod
+    def get_bids_from_user_and_round_with_bet(cls, user, round, player_bet : InOutBets):
+        n = db.session.query(cls).filter_by(user_id=user.id, round_id=round.id, inOutbet=player_bet.value).first()
+        return n
+    """
+
 	@classmethod
-	def get_bids_from_user_and_round_with_bet(
-		cls, user, round, player_bet: InOutBets
-	):
+	def get_bids_from_round_with_bet(cls, round, player_bet: InOutBets):
 		n = (
 			db.session.query(cls)
-			.filter_by(
-				user_id=user.id, round_id=round.id, inOutbet=player_bet.value
-			)
-			.first()
+			.filter_by(round_id=round.id, inOutbet=player_bet.value)
+			.one_or_none()
 		)
 		return n
 
