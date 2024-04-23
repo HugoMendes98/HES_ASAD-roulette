@@ -694,6 +694,8 @@ tr {
 
 /*#region chip*/
 
+
+
 .chip-container {
 	width: 19px;
 	height: 19px;
@@ -702,7 +704,7 @@ tr {
   .chip-container.online {
 	border-radius: 100%;
 	border: solid 3px;
-	border-color: green;
+	border-color: rgb(52, 235, 220);
   }
   
   
