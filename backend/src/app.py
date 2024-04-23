@@ -7,8 +7,8 @@ from flask_socketio import SocketIO
 from threading import Event
 
 from .models import register_models
-from .logic import event_loop
-from . import roulette_logic_blueprint, roulette_website_blueprint
+from .logic import event_loop, roulette_logic_blueprint
+from .routes import roulette_website_blueprint
 
 # The "only" game (demo/test purpose)
 the_game = {"type": "idle", "round": 0}

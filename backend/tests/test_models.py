@@ -110,8 +110,8 @@ def test_payout_full(client):
     assert r.game_id == g.id
     assert r.winning_slot == Slots.ELEVEN.value
     w_b = r.get_winning_bids()
-    assert(len(w_b)==1)
-    assert(w_b[0].is_won)
+    assert (len(w_b) == 1)
+    assert (w_b[0].is_won)
 
 
 def test_bid(client):
@@ -126,3 +126,20 @@ def test_bid(client):
         content_type="application/json",
     )
     assert r.status_code == 201
+
+
+def test_login(client):
+
+    User.new(username="oly")
+    g = Game.get(1)
+    g.go_to_idle()
+    g.go_to_bidable()
+    r = client.post(
+        "/user/login",
+        data=json.dumps(dict(username="oly")),
+        content_type="application/json",
+    )
+    assert r.status_code == 200
+
+    assert r.json["username"] == "oly"
+    assert isinstance(r.json["balance"], int)

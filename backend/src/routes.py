@@ -12,7 +12,7 @@ def login():
     u = User.get(username)
     if u is None:
         u = User.new(username)
-    return  jsonify({"username": u.username, "balance": u.balance})
+    return  jsonify({"username": u.username, "balance": int(u.balance)})
 
 def get_user_info():
     pass
