@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, OnInit } from "@angular/core";
-import { toObservable } from "@angular/core/rxjs-interop";
+import { Component, computed, input, OnInit } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatInputModule } from "@angular/material/input";
@@ -10,6 +10,9 @@ import { switchMap } from "rxjs";
 import { ApiModule, GameApiService } from "../../../../lib/api";
 import { SocketModule, SocketService } from "../../../../lib/socket";
 import { AuthModule } from "../../../auth/auth.module";
+import { AuthService } from "../../../auth/auth.service";
+
+type BetOnTable = Record<string, { username: string; value: number }>;
 
 @Component({
 	standalone: true,
@@ -32,17 +35,33 @@ export class GameView implements OnInit {
 		transform: query => +query,
 	});
 
-	//private readonly authService: AuthService;
-
-	//protected readonly user = authService.getProfile()
-
 	protected readonly gameState$ = toObservable(this.gameId).pipe(
 		switchMap(id => {
+			this.socket.askForRefresh(id);
 			return this.socket.onGameState$(id);
 		}),
 	);
+	protected readonly gameState = toSignal(this.gameState$);
 
-	protected fakesBetsFromBackEnd: any = {
+	/** Connected (or not) current user */
+	protected readonly user = toSignal(this.authService.user$);
+
+	protected readonly betsOnTable = computed<BetOnTable>(() => {
+		const state = this.gameState();
+
+		if (!state || state.state === "IDLE" || state.state === "RESULT") {
+			return {};
+		}
+
+		return Object.fromEntries(
+			state.bets.map(({ inOutbet, username, wager }) => [
+				inOutbet,
+				{ username, value: wager },
+			]),
+		);
+	});
+
+	protected fakesBetsFromBackEnd: BetOnTable = {
 		"11": {
 			username: "anthony",
 			value: 1,
@@ -57,43 +76,43 @@ export class GameView implements OnInit {
 		},
 	};
 
-	protected username = "anthony"; //username NEED TO GET FROM THE AUTH MODULE
-	protected amount = 200; //money available
 	public amountSelected = 0;
-	public previousState = undefined;
 
 	public constructor(
+		private readonly authService: AuthService,
 		private readonly gameApi: GameApiService,
 		private readonly socket: SocketService,
 	) {}
-	ngOnInit(): void {
+
+	public ngOnInit(): void {
 		this.setupEvent();
 		const myThis = this;
 		document.addEventListener("mousemove", e => {
 			myThis.updateCursorPosition(e.clientX, e.clientY);
 		});
 
-		this.gameState$.subscribe((state: any) => {
+		this.gameState$.subscribe(state => {
 			console.log("update ! someone bet something");
 
 			this.updateView();
 
-			if (
-				this.previousState == "BIDABLE" &&
-				state["state"] == "WAITING"
-			) {
-				_window().spinWheel(state["winning_slot"]);
-				console.log("toto");
+			if (state.state === "RESULT") {
+				_window().spinWheel(state.winning_slot);
 			}
-			this.previousState = state["state"];
 		});
 	}
 
 	//API POST a bet for a user
-	public bid(id: any, value: number) {
+	public bid(id: number, value: number) {
+		const user = this.user();
+		if (!user) {
+			// Not connected
+			return;
+		}
+
 		void this.gameApi.addBid(this.gameId(), {
 			position_id: id,
-			username: this.username,
+			username: user.username,
 			value: value,
 		});
 	}
@@ -102,6 +121,7 @@ export class GameView implements OnInit {
 	public changeBid(value: number) {
 		this.amountSelected = value;
 	}
+
 	/**
 	 * Add a chip on the view in the correct case
 	 * @param elementClicked
@@ -118,7 +138,10 @@ export class GameView implements OnInit {
 		} else {
 			title = `num-${elementClicked.dataset.num}`;
 		}
-		this.bid(title, valueBet);
+
+		console.log("asdasd", elementClicked.dataset.num, valueBet);
+
+		this.bid(+(elementClicked.dataset.num ?? "0"), valueBet);
 		this.updateView();
 	}
 
@@ -146,15 +169,15 @@ export class GameView implements OnInit {
 	private updateView() {
 		//Prepare the data as used (temp only work with number)
 		const bets = new Map();
-		for (const el of Object.keys(this.fakesBetsFromBackEnd)) {
+		for (const [el, v] of Object.entries(this.betsOnTable())) {
 			bets.set(`num-${el}`, {
 				htmlElement: $(`*[data-num=${el}]`)[0],
-				username: this.fakesBetsFromBackEnd[el].username,
-				value: this.fakesBetsFromBackEnd[el].value,
+				username: v.username,
+				value: v.value,
 			});
 		}
 
-		_window().updateBetsView(bets, this.username);
+		_window().updateBetsView(bets, this.user()?.username);
 	}
 	//Update positon of the chip selected based on the cursor position
 	private updateCursorPosition(clientX: number, clientY: number) {
@@ -187,11 +210,12 @@ export class GameView implements OnInit {
 		cursorElement.style.top = `${clientY - 10}px`; // Adjusting for element height
 	}
 
-	private caseAvailable(number: any) {
-		if (this.fakesBetsFromBackEnd[number] == undefined) {
+	private caseAvailable(number: string) {
+		const betsOnTable = this.betsOnTable();
+		if (betsOnTable[number] == undefined) {
 			return true;
 		} else {
-			if (this.fakesBetsFromBackEnd[number].username == this.username) {
+			if (betsOnTable[number].username == this.user()?.username) {
 				return true;
 			}
 		}

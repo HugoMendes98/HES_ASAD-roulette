@@ -5,6 +5,7 @@
 			<table>
 				<tr class="nums">
 					<td class="green num zero" rowspan="3"><span>0</span></td>
+
 					<td class="num red"><span>3</span></td>
 					<td class="black num"><span>6</span></td>
 					<td class="num red"><span>9</span></td>
@@ -17,6 +18,7 @@
 					<td class="num red"><span>30</span></td>
 					<td class="black num"><span>33</span></td>
 					<td class="num red"><span>36</span></td>
+
 					<td class="sector" data-sector="1">
 						<span class="vt">2 to 1</span>
 					</td>
@@ -53,6 +55,7 @@
 					<td class="black num"><span>28</span></td>
 					<td class="black num"><span>31</span></td>
 					<td class="num red"><span>34</span></td>
+
 					<td class="sector" data-sector="3">
 						<span class="vt">2 to 1</span>
 					</td>
@@ -483,7 +486,8 @@
 		</div>
 	</div>
 </div>
-<div class="bets-container">
+
+<div *ngIf="user()" class="bets-container">
 	<div class="chip-container">
 		<div class="blue chip" (click)="changeBid(1)">
 			<span class="chipSpan">1</span>
@@ -513,6 +517,7 @@
 		<div (click)="changeBid(0)">x</div>
 	</div>
 </div>
+
 <div id="cursorElement"></div>
 
 <div>
