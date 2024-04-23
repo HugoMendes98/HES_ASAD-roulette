@@ -1,4 +1,9 @@
 <mat-toolbar color="primary">
+	<div id="state">
+		<mat-icon *ngIf="isConnected()">wifi</mat-icon>
+		<mat-icon *ngIf="!isConnected()" color="accent">wifi_off</mat-icon>
+	</div>
+
 	<div *ngIf="user() as user">
 		<button
 			color="error"

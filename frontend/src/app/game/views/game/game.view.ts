@@ -12,6 +12,11 @@ import { SocketModule, SocketService } from "../../../../lib/socket";
 import { AuthModule } from "../../../auth/auth.module";
 import { AuthService } from "../../../auth/auth.service";
 
+const _window = window as never as {
+	spinWheel: (slot: number) => void;
+	updateBetsView: (bets: Map<unknown, unknown>, user?: string) => void;
+};
+
 type BetOnTable = Record<string, { username: string; value: number }>;
 
 @Component({
@@ -41,6 +46,8 @@ export class GameView implements OnInit {
 			return this.socket.onGameState$(id);
 		}),
 	);
+
+	protected readonly isConnected = toSignal(this.socket.isConnected$);
 	protected readonly gameState = toSignal(this.gameState$);
 
 	/** Connected (or not) current user */
@@ -61,7 +68,7 @@ export class GameView implements OnInit {
 		);
 	});
 
-	public amountSelected = 0;
+	protected amountSelected = 0;
 
 	public constructor(
 		private readonly authService: AuthService,
@@ -71,18 +78,16 @@ export class GameView implements OnInit {
 
 	public ngOnInit(): void {
 		this.setupEvent();
-		const myThis = this;
+
 		document.addEventListener("mousemove", e => {
-			myThis.updateCursorPosition(e.clientX, e.clientY);
+			this.updateCursorPosition(e.clientX, e.clientY);
 		});
 
 		this.gameState$.pipe(debounceTime(250)).subscribe(state => {
-			console.log("update ! someone bet something");
-
 			this.updateView();
 
 			if (state.state === "RESULT") {
-				_window().spinWheel(state.winning_slot);
+				_window.spinWheel(state.winning_slot);
 			}
 		});
 	}
@@ -90,7 +95,7 @@ export class GameView implements OnInit {
 	//API POST a bet for a user
 	public bid(id: number, value: number) {
 		const user = this.user();
-		if (!user) {
+		if (!user || !this.isConnected()) {
 			// Not connected
 			return;
 		}
@@ -115,17 +120,11 @@ export class GameView implements OnInit {
 	public addChip(elementClicked: {
 		dataset: { num: string | undefined; sector: string };
 	}) {
-		const valueBet = this.amountSelected;
-		let title;
-		if (elementClicked.dataset.num == undefined) {
-			const dataSelected = elementClicked.dataset.sector.split(",");
-			title = `sector-${elementClicked.dataset.sector}`;
-		} else {
-			title = `num-${elementClicked.dataset.num}`;
+		if (!elementClicked.dataset.num) {
+			return;
 		}
 
-		console.log("asdasd", elementClicked.dataset.num, valueBet);
-
+		const valueBet = this.amountSelected;
 		this.bid(+(elementClicked.dataset.num ?? "0"), valueBet);
 		this.updateView();
 	}
@@ -134,17 +133,20 @@ export class GameView implements OnInit {
 	 * Setup Event onClick on each case to allow add chip on case
 	 */
 	private setupEvent() {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- FIXME
 		$(".controlls-2 table").on("mousedown", (e: { target: any }) => {
+			/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- FIXME */
 			let elementClicked = e.target;
-			if (elementClicked.tagName == "SPAN") {
+			if (elementClicked.tagName === "SPAN") {
 				elementClicked = elementClicked.parentElement;
 			}
 
-			//Need to take care of sector, multiple sector and num later
-			const number = elementClicked.dataset.num;
+			// Need to take care of sector, multiple sector and num later
+			const number = elementClicked.dataset.num as string;
 			if (this.caseAvailable(number)) {
-				this.addChip(elementClicked);
+				this.addChip(elementClicked as never);
 			}
+			/* eslint-enable */
 		});
 	}
 
@@ -162,12 +164,16 @@ export class GameView implements OnInit {
 			});
 		}
 
-		_window().updateBetsView(bets, this.user()?.username);
+		_window.updateBetsView(bets, this.user()?.username);
 	}
+
 	//Update positon of the chip selected based on the cursor position
 	private updateCursorPosition(clientX: number, clientY: number) {
-		const cursorElement: any | null =
-			document.getElementById("cursorElement");
+		const cursorElement = document.getElementById("cursorElement");
+		if (!cursorElement) {
+			return;
+		}
+
 		switch (this.amountSelected) {
 			case 0:
 				cursorElement.innerHTML = "";
@@ -197,19 +203,15 @@ export class GameView implements OnInit {
 
 	private caseAvailable(number: string) {
 		const betsOnTable = this.betsOnTable();
-		if (betsOnTable[number] == undefined) {
+		if (
+			!betsOnTable[number] ||
+			betsOnTable[number].username === this.user()?.username
+		) {
 			return true;
-		} else {
-			if (betsOnTable[number].username == this.user()?.username) {
-				return true;
-			}
 		}
+
+		// eslint-disable-next-line no-alert -- Ok for now
 		alert("Case not available");
 		return false;
 	}
-}
-
-function _window(): any {
-	// return the global native browser window object
-	return window;
 }

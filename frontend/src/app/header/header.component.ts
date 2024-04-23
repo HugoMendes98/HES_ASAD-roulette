@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { Subscription, debounceTime, of, switchMap, tap } from "rxjs";
 
@@ -21,12 +22,22 @@ import { AuthService } from "../auth/auth.service";
 		CommonModule,
 		FormsModule,
 		MatButtonModule,
+		MatIconModule,
 		MatToolbarModule,
 		SocketModule,
 	],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
 	protected readonly user = toSignal(this.authService.user$);
+	protected readonly isConnected = toSignal(
+		this.socketService.isConnected$.pipe(
+			tap(connected => {
+				if (connected) {
+					void this.authService.refreshProfile();
+				}
+			}),
+		),
+	);
 
 	/** Input username */
 	protected username = "";

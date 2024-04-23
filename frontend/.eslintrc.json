@@ -4,6 +4,7 @@
 		"plugin:eslint-comments/recommended",
 		"plugin:sort-decorators/strict"
 	],
+	"ignorePatterns": ["src/assets/*.js"],
 	"overrides": [
 		{
 			"files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
@@ -262,7 +263,9 @@
 					}
 				],
 				"@angular-eslint/template/button-has-type": "error",
+				"@angular-eslint/template/click-events-have-key-events": "warn",
 				"@angular-eslint/template/eqeqeq": "error",
+				"@angular-eslint/template/interactive-supports-focus": "warn",
 				"@angular-eslint/template/no-autofocus": "error",
 				"@angular-eslint/template/no-distracting-elements": "error",
 				"@angular-eslint/template/no-interpolation-in-attributes": "error",
