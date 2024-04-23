@@ -116,7 +116,7 @@ def test_state_cycle(client):
 		r = g.get_last_round()
 		assert r.round_number == i
 		assert r.state == RoundStates.WAITING.value
-		g.go_to_result(Slots.DOUBLE_ZERO)
+		g.go_to_result(Slots.ZERO)
 		r = g.get_last_round()
 		assert r.round_number == i
 		assert r.state == RoundStates.RESULT.value
