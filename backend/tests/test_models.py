@@ -1,16 +1,19 @@
 import json
 
 import pytest
-from backend.src.app import create_app
-from backend.src.models import (
+
+from src.app import create_app
+from src.models import (
 	Bid,
 	Game,
-	InOutBets,
 	Round,
-	RoundStates,
-	Slots,
 	User,
 	db,
+)
+from src.models.round_info import (
+	InOutBets,
+	RoundStates,
+	Slots,
 )
 
 
