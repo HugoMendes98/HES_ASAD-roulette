@@ -11,7 +11,7 @@ export class GameApiService {
 		return this.client.post<UserDto>("/user/login", data);
 	}
 
-	public addBid(gameId: number, data: BidCreateDto | unknown) {
+	public addBid(gameId: number, data: BidCreateDto) {
 		// TODO
 		return this.client.post(`/games/${gameId}/bet`, data);
 	}
