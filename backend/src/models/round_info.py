@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class InOutBets(Enum):
+	ZERO = 0
 	ONE = 1
 	TWO = 2
 	THREE = 3
@@ -64,7 +65,6 @@ def get_factor_from_InOutBets(inOutBets):
 
 
 class Slots(Enum):
-	DOUBLE_ZERO = -1
 	ZERO = 0
 	ONE = 1
 	TWO = 2
