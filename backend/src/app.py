@@ -28,7 +28,11 @@ def main():
 
 	socketio = app.socketio_instance
 	socketio.start_background_task(event_loop, app)
-	socketio.run(app, host="localhost", port=5000)
+	socketio.run(
+		app,
+		host=os.environ.get("APP_HOST", "localhost"),
+		port=int(os.environ.get("APP_PORT", "5000")),
+	)
 
 
 if __name__ == "__main__":
