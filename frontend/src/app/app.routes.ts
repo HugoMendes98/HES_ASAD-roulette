@@ -8,14 +8,14 @@ export const routes: Routes = [
 			import("./game/views/game/game.view").then(v => v.GameView),
 		path: APP_PATHS.game.path,
 	},
-	{
-		loadComponent: () =>
-			import("./game/views/games/games.view").then(v => v.GamesView),
-		path: APP_PATHS.games.path,
-	},
+	//{
+	// loadComponent: () =>
+	// 	import("./game/views/games/games.view").then(v => v.GamesView),
+	// path: APP_PATHS.games.path,
+	//},
 	{
 		// Should be a not found page
 		path: "**",
-		redirectTo: APP_PATHS.games.path,
+		redirectTo: APP_PATHS.game.getPath(1),
 	},
 ];
