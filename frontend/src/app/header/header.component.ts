@@ -49,7 +49,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 						}
 
 						return this.socketService.onBalanceUpdate(user.id).pipe(
-							debounceTime(500),
+							debounceTime(250),
 							tap(() => void this.authService.refreshProfile()),
 						);
 					}),

@@ -229,7 +229,7 @@ def test_login(client):
 	g.go_to_idle()
 	g.go_to_bidable()
 	r = client.post(
-		"/user/login",
+		"/api/games/user/login",
 		data=json.dumps(dict(username="oly")),
 		content_type="application/json",
 	)

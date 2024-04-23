@@ -1,6 +1,6 @@
 from flask import redirect, request
 
-from . import roulette_website_blueprint
+from . import roulette_logic_blueprint, roulette_website_blueprint
 from .models import User
 
 
@@ -9,7 +9,7 @@ def get_home():
 	redirect("/game/register")
 
 
-@roulette_website_blueprint.post("/user/login")
+@roulette_logic_blueprint.post("/user/login")
 def login():
 	username = request.json.get("username")
 	u = User.get(username)
