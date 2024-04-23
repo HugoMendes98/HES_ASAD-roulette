@@ -1,6 +1,6 @@
-from . import db
-from . import Bid
-from . import InOutBets, RoundStates
+from .bid import Bid
+from .db import db
+from .round_info import InOutBets, RoundStates
 
 
 class User(db.Model):

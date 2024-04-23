@@ -1,8 +1,6 @@
-from . import db
-
-from . import Round
-
-from . import RoundStates
+from .db import db
+from .round import Round
+from .round_info import RoundStates
 
 
 # technically represent a "table"

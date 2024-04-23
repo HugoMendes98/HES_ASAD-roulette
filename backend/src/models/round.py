@@ -1,9 +1,9 @@
 from datetime import datetime
-from . import db
 
-from . import Bid
-from . import User
-from . import InOutBets, Slots, RoundStates
+from .bid import Bid
+from .db import db
+from .round_info import InOutBets, RoundStates, Slots
+from .user import User
 
 
 class Round(db.Model):

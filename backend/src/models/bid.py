@@ -1,7 +1,7 @@
 from datetime import datetime
-from . import db
 
-from . import InOutBets, get_factor_from_InOutBets, Slots
+from .db import db
+from .round_info import InOutBets, get_factor_from_InOutBets
 
 
 class Bid(db.Model):
