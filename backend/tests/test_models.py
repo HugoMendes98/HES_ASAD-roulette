@@ -206,3 +206,20 @@ def test_bid(client):
         content_type="application/json",
     )
     assert r.status_code == 201
+
+
+def test_login(client):
+
+    User.new(username="oly")
+    g = Game.get(1)
+    g.go_to_idle()
+    g.go_to_bidable()
+    r = client.post(
+        "/user/login",
+        data=json.dumps(dict(username="oly")),
+        content_type="application/json",
+    )
+    assert r.status_code == 200
+
+    assert r.json["username"] == "oly"
+    assert isinstance(r.json["balance"], int)
