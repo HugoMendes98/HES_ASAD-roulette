@@ -9,7 +9,7 @@ def get_home():
 	return redirect("/games/1")
 
 @roulette_website_blueprint.get("/games/<game_id>")
-def get_home(game_id):
+def get_home_gid(game_id):
 	return send_file("static/index.html")
 
 
