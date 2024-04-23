@@ -62,6 +62,7 @@ export class GameView implements OnInit {
 	protected username = "anthony"; //username NEED TO GET FROM THE AUTH MODULE
 	protected amount = 200; //money available
 	public amountSelected = 0;
+	public previousState = undefined;
 
 	public constructor(
 		private readonly gameApi: GameApiService,
@@ -74,10 +75,19 @@ export class GameView implements OnInit {
 			myThis.updateCursorPosition(e.clientX, e.clientY);
 		});
 
-		this.gameState$.subscribe((state) => {
+		this.gameState$.subscribe((state: any) => {
 			console.log("update ! someone bet something");
-			this.updateView()
-			
+
+			this.updateView();
+
+			if (this.previousState == "BIDABLE" && state["state"] == "WAITING") {
+				_window().spinWheel(state["winning_slot"]);
+				console.log("toto");
+
+			}
+			this.previousState = state["state"];
+
+
 		})
 	}
 
@@ -143,10 +153,10 @@ export class GameView implements OnInit {
 		//Prepare the data as used (temp only work with number)
 		let bets = new Map()
 		Object.keys(this.fakesBetsFromBackEnd).forEach(el => {
-			bets.set("num-"+el,{value : this.fakesBetsFromBackEnd[el].value,username : this.fakesBetsFromBackEnd[el].username,htmlElement : $(`*[data-num=${el}]`)[0]})
+			bets.set("num-" + el, { value: this.fakesBetsFromBackEnd[el].value, username: this.fakesBetsFromBackEnd[el].username, htmlElement: $(`*[data-num=${el}]`)[0] })
 		})
 
-		_window().updateBetsView(bets,this.username);
+		_window().updateBetsView(bets, this.username);
 	}
 	//Update positon of the chip selected based on the cursor position
 	private updateCursorPosition(clientX: number, clientY: number) {
