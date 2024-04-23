@@ -10,4 +10,5 @@ roulette_website_blueprint = Blueprint(
 	url_prefix="",
 	template_folder="templates",
 	static_folder="static",
+	static_url_path="",
 )
