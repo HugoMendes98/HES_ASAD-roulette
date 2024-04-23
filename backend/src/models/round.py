@@ -115,21 +115,21 @@ class Round(db.Model):
 			"next_state_timestamp": self.next_state_timestamp,
 		}
 
-		if state == RoundStates.BIDABLE:
-			bets = {
-				bet.inOutbet: {
+		if state == RoundStates.BIDABLE or state == RoundStates.WAITING:
+			bets = [
+				{
 					"username": bet.user.username,
-					"value": int(bet.wager),
+					"inOutbet": bet.inOutbet,
+					"wager": int(bet.wager),
 				}
 				for bet in self.bids
-			}
+			]
+
 			round_dict["bets"] = bets
 		elif state == RoundStates.RESULT:
 			round_dict["pay_out"] = self.pay_out()
 			round_dict["winning_slot"] = self.winning_slot
 		elif state == RoundStates.IDLE:
-			pass
-		elif state == RoundStates.WAITING:
 			pass
 
 		return round_dict
