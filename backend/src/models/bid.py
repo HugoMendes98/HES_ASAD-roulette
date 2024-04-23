@@ -12,7 +12,7 @@ class Bid(db.Model):
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     # max is 9'999'999.99
-    wager = db.Column(db.Numeric(10, 2), nullable=False, default=10.0)
+    wager = db.Column(db.Integer, nullable=False, default=10.0)
 
     # is the value of the enum
     inOutbet = db.Column(db.Integer, nullable=False)

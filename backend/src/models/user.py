@@ -10,7 +10,7 @@ class User(db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
 
     # starts with 200$
-    balance = db.Column(db.Numeric(10, 2), nullable=False, default=200.00)
+    balance = db.Column(db.Integer, nullable=False, default=200.00)
     password_hash = db.Column(
         db.String(64), nullable=False, default="placehodlerForSLOWHash"
     )
