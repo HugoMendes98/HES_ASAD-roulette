@@ -1,4 +1,4 @@
-from flask import redirect, request
+from flask import redirect, request, send_file
 
 from . import roulette_logic_blueprint, roulette_website_blueprint
 from .models import User
@@ -6,7 +6,11 @@ from .models import User
 
 @roulette_website_blueprint.get("/")
 def get_home():
-	return redirect("/index.html")
+	return redirect("/games/1")
+
+@roulette_website_blueprint.get("/games/<game_id>")
+def get_home(game_id):
+	return send_file("static/index.html")
 
 
 @roulette_logic_blueprint.post("/user/login")
