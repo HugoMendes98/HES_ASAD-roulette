@@ -43,7 +43,7 @@ def add_bet(game_id):
 			"balance": user.balance,
 		}, 201
 	else:
-		return {}, 201
+		return {"balance": user.balance}, 201
 
 
 @roulette_logic_blueprint.get("/<game_id>/status")

@@ -210,7 +210,7 @@ def test_payout_full(client):
 	assert w_b[0].is_won
 
 
-def test_bid(client):
+def test_post_bid(client):
 	User.new(username="oly")
 	g = Game.get(1)
 	g.go_to_idle()
@@ -221,7 +221,31 @@ def test_bid(client):
 		content_type="application/json",
 	)
 	assert r.status_code == 201
+	
+	r2 = client.post(
+		"/games/1/bet",
+		data=json.dumps(dict(position_id=1, value=5, username="oly")),
+		content_type="application/json",
+	)
+	assert r2.json["balance"] == 190
+	assert r2.status_code == 201
 
+
+	r3 = client.post(
+		"/games/1/bet",
+		data=json.dumps(dict(position_id=1, value=-5, username="oly")),
+		content_type="application/json",
+	)
+	assert r3.json["balance"] == 195
+	assert r3.status_code == 201
+
+	r4 = client.post(
+		"/games/1/bet",
+		data=json.dumps(dict(position_id=1, value=-10, username="oly")),
+		content_type="application/json",
+	)
+	assert r4.json["balance"] == 200
+	assert r4.status_code == 201
 
 def test_login(client):
 	User.new(username="oly")
