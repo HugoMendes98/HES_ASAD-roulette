@@ -1,7 +1,7 @@
 from flask_socketio import SocketIO
 from flask_socketio import emit as socket_emit
 
-from .models import Game
+from .models import Game, User
 
 
 def get_game_socket_path(game: Game):
@@ -9,6 +9,12 @@ def get_game_socket_path(game: Game):
 
 
 def register_sockets(socketio: SocketIO):
+	def notify_balance_update(user: User):
+		# This simply indicate a change in the balance, but do not send any data
+		socketio.emit("/users/{0}/balance".format(user.id))
+
+	User.set_on_update_balance(notify_balance_update)
+
 	@socketio.on("/games/refresh")
 	def refresh_game(data):
 		"""

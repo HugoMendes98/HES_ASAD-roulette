@@ -4,6 +4,12 @@ from .round_info import InOutBets, RoundStates
 
 
 class User(db.Model):
+	listeners_update_balance = []
+
+	@staticmethod
+	def set_on_update_balance(listener):
+		User.listeners_update_balance.append(listener)
+
 	id = db.Column(db.Integer, primary_key=True)
 
 	# for now is unique
@@ -112,6 +118,10 @@ class User(db.Model):
 	def update_balance(cls, user_id, new_balance) -> bool:
 		n = cls.query.get(user_id)
 		if n:
+			if n.balance != new_balance:
+				for listener in User.listeners_update_balance:
+					listener(n)
+
 			n.balance = new_balance
 			db.session.commit()
 			return True

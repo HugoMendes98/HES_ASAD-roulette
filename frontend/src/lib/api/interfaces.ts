@@ -3,6 +3,7 @@ export interface LoginDto {
 }
 export interface UserDto extends LoginDto {
 	balance: number;
+	id: number;
 }
 
 export enum InOutBets {

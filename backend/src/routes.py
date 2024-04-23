@@ -1,4 +1,4 @@
-from flask import jsonify, redirect, request
+from flask import redirect, request
 
 from . import roulette_website_blueprint
 from .models import User
@@ -15,4 +15,4 @@ def login():
 	u = User.get(username)
 	if u is None:
 		u = User.new(username)
-	return jsonify({"username": u.username, "balance": int(u.balance)})
+	return {"id": u.id, "username": u.username, "balance": int(u.balance)}

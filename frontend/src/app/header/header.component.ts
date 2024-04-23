@@ -1,10 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatToolbarModule } from "@angular/material/toolbar";
+import { Subscription, debounceTime, of, switchMap, tap } from "rxjs";
 
+import { SocketModule, SocketService } from "../../lib/socket";
 import { AuthModule } from "../auth/auth.module";
 import { AuthService } from "../auth/auth.service";
 
@@ -20,15 +22,45 @@ import { AuthService } from "../auth/auth.service";
 		FormsModule,
 		MatButtonModule,
 		MatToolbarModule,
+		SocketModule,
 	],
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy {
 	protected readonly user = toSignal(this.authService.user$);
 
 	/** Input username */
 	protected username = "";
 
-	public constructor(private readonly authService: AuthService) {}
+	private readonly subscription = new Subscription();
+
+	public constructor(
+		private readonly authService: AuthService,
+		private readonly socketService: SocketService,
+	) {}
+
+	public ngOnInit() {
+		this.subscription.add(
+			this.authService.user$
+				.pipe(
+					// Update socket event if the user change
+					switchMap(user => {
+						if (!user) {
+							return of(null);
+						}
+
+						return this.socketService.onBalanceUpdate(user.id).pipe(
+							debounceTime(500),
+							tap(() => void this.authService.refreshProfile()),
+						);
+					}),
+				)
+				.subscribe(),
+		);
+	}
+
+	public ngOnDestroy() {
+		this.subscription.unsubscribe();
+	}
 
 	public login() {
 		if (!this.username) {

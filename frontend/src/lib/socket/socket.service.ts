@@ -18,4 +18,9 @@ export class SocketService {
 	public onGameState$(gameId: number) {
 		return this.socket.fromEvent<GameState>(`/games/${gameId}`);
 	}
+
+	/** Receive notification when the balance has changed */
+	public onBalanceUpdate(userId: number) {
+		return this.socket.fromEvent(`/users/${userId}/balance`);
+	}
 }

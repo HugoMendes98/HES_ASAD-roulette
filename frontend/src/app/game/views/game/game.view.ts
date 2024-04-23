@@ -5,7 +5,7 @@ import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatInputModule } from "@angular/material/input";
 import $ from "jquery";
-import { switchMap } from "rxjs";
+import { debounceTime, switchMap } from "rxjs";
 
 import { ApiModule, GameApiService } from "../../../../lib/api";
 import { SocketModule, SocketService } from "../../../../lib/socket";
@@ -61,21 +61,6 @@ export class GameView implements OnInit {
 		);
 	});
 
-	protected fakesBetsFromBackEnd: BetOnTable = {
-		"11": {
-			username: "anthony",
-			value: 1,
-		},
-		"14": {
-			username: "anthony",
-			value: 10,
-		},
-		"15": {
-			username: "toto",
-			value: 10,
-		},
-	};
-
 	public amountSelected = 0;
 
 	public constructor(
@@ -91,7 +76,7 @@ export class GameView implements OnInit {
 			myThis.updateCursorPosition(e.clientX, e.clientY);
 		});
 
-		this.gameState$.subscribe(state => {
+		this.gameState$.pipe(debounceTime(250)).subscribe(state => {
 			console.log("update ! someone bet something");
 
 			this.updateView();
