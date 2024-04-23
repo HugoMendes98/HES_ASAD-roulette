@@ -6,7 +6,7 @@ from .models import User
 
 @roulette_website_blueprint.get("/")
 def get_home():
-	redirect("/game/register")
+	return redirect("/index.html")
 
 
 @roulette_logic_blueprint.post("/user/login")
