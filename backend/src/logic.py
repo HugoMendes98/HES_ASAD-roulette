@@ -1,8 +1,11 @@
-from random import randint
 from datetime import datetime, timedelta
-from flask import request, current_app, jsonify
+from random import randint
+
+from flask import current_app, jsonify, request
+
 from . import roulette_logic_blueprint
-from .models import User, InOutBets, Game, RoundStates, Slots
+from .models import Game, User
+from .models.round_info import InOutBets, RoundStates, Slots
 
 GAME_PATH = "/games/1"
 BIDABLE_time_s = 30
