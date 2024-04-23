@@ -136,10 +136,9 @@ class Round(db.Model):
 
 	def to_json(self):
 		state = self.to_dict()
+		# * 1000 for JS timestamp
+		ts = int(state["next_state_timestamp"].timestamp() * 1000) if state["next_state_timestamp"] is not None else None
 		return {
 			**state,
-			"next_state_timestamp": int(
-				# * 1000 for JS timestamp
-				state["next_state_timestamp"].timestamp() * 1000
-			),
+			"next_state_timestamp": ts,
 		}
