@@ -49,31 +49,41 @@ class Bid(db.Model):
         db.session.commit()
         return n
 
-    '''
+    """
     @classmethod
     def get_bids_from_user_and_round(cls, user, round):
         n = db.session.query(cls).filter_by(user_id=user.id, round_id=round.id).all()
         return n
-    '''
+    """
 
+    """ Deprecated, useful only if multiple player can bet on same InOutBets
     @classmethod
     def get_bids_from_user_and_round_with_bet(cls, user, round, player_bet : InOutBets):
         n = db.session.query(cls).filter_by(user_id=user.id, round_id=round.id, inOutbet=player_bet.value).first()
         return n
+    """
 
+    @classmethod
+    def get_bids_from_round_with_bet(cls, round, player_bet: InOutBets):
+        n = (
+            db.session.query(cls)
+            .filter_by(round_id=round.id, inOutbet=player_bet.value)
+            .one_or_none()
+        )
+        return n
 
     @classmethod
     def update_wager(cls, bid_id, new_wager) -> bool:
-        n : Bid = cls.query.get(bid_id)
+        n: Bid = cls.query.get(bid_id)
         if n:
             n.wager = new_wager
             db.session.commit()
             return True
         raise Exception("Bid not found.")
-    
+
     @classmethod
     def update_is_won(cls, bid_id, winning_slot) -> bool:
-        n : Bid = cls.query.get(bid_id)
+        n: Bid = cls.query.get(bid_id)
         if n:
             n.is_won = n.inOutbet == winning_slot
             db.session.commit()
