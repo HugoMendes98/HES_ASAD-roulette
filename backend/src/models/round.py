@@ -110,13 +110,11 @@ class Round(db.Model):
 
 	def to_dict(self):
 		state = RoundStates(self.state)
-		round_dict = dict(state=state.name)
-		if self.next_state_timestamp is not None:
-			next_state = (
-				self.next_state_timestamp - datetime.utcnow()
-			).total_seconds()
-			next_state = 0 if next_state < 0 else next_state
-			round_dict["next_state_seconds"] = next_state
+		round_dict = {
+			"state": state.name,
+			"next_state_timestamp": self.next_state_timestamp,
+		}
+
 		if state == RoundStates.BIDABLE:
 			bets = {
 				bet.inOutbet: {
@@ -127,9 +125,21 @@ class Round(db.Model):
 			}
 			round_dict["bets"] = bets
 		elif state == RoundStates.RESULT:
+			round_dict["pay_out"] = self.pay_out()
 			round_dict["winning_slot"] = self.winning_slot
 		elif state == RoundStates.IDLE:
 			pass
 		elif state == RoundStates.WAITING:
 			pass
+
 		return round_dict
+
+	def to_json(self):
+		state = self.to_dict()
+		return {
+			**state,
+			"next_state_timestamp": int(
+				# * 1000 for JS timestamp
+				state["next_state_timestamp"].timestamp() * 1000
+			),
+		}
