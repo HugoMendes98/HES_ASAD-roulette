@@ -1,0 +1,32 @@
+<mat-toolbar color="primary">
+	<div *ngIf="user() as user">
+		<button
+			color="error"
+			mat-raised-button
+			type="button"
+			(click)="logout()"
+		>
+			Logout
+		</button>
+
+		<span>{{ user.username }} - {{ user.balance }}$</span>
+	</div>
+
+	<div *ngIf="user() === null">
+		<input
+			placeholder="username"
+			required=""
+			type="text"
+			[(ngModel)]="username"
+		/>
+		<button
+			color="accent"
+			mat-raised-button
+			type="button"
+			[disabled]="username === ''"
+			(click)="login()"
+		>
+			Connect
+		</button>
+	</div>
+</mat-toolbar>
