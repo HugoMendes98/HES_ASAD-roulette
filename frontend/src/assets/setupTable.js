@@ -113,99 +113,99 @@ $(document).ready(function () {
         });
 
         //For all sectors
-      /*  document.querySelectorAll(".controlls-2 .sector").forEach((element, i) => {
-            let sectors_number = element.dataset.sector;
-            $(element).hover(_ => {
-                let allCaseNumber = sectors_values[sectors_number];
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).addClass("hover");
-                });
-            }, _ => {
-                let allCaseNumber = sectors_values[sectors_number];
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).removeClass("hover");
-                });
-            });
-
-            //fix with mouse move 
-            if (sectors_number <= 6) {
-                $(element).on("mousemove", e => {
-                    let allCaseNumber = sectors_values[sectors_number];
-                    allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                        $(element).addClass("hover");
-                    });
-                });
-            }
-        }); */
+        /*  document.querySelectorAll(".controlls-2 .sector").forEach((element, i) => {
+              let sectors_number = element.dataset.sector;
+              $(element).hover(_ => {
+                  let allCaseNumber = sectors_values[sectors_number];
+                  allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                      $(element).addClass("hover");
+                  });
+              }, _ => {
+                  let allCaseNumber = sectors_values[sectors_number];
+                  allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                      $(element).removeClass("hover");
+                  });
+              });
+  
+              //fix with mouse move 
+              if (sectors_number <= 6) {
+                  $(element).on("mousemove", e => {
+                      let allCaseNumber = sectors_values[sectors_number];
+                      allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                          $(element).addClass("hover");
+                      });
+                  });
+              }
+          }); */
 
         //For all "a cheval bet" horizontal
-       /* document.querySelectorAll(".controlls-2 .num .btn.v.cv").forEach(element => {
-            $(element).hover(_ => {
-                let allCaseNumber = element.dataset.num.split(",");
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).addClass("hover");
-                });
-            }, _ => {
-                let allCaseNumber = element.dataset.num.split(",");
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).removeClass("hover");
-                });
-            });
-        }); */
+        /* document.querySelectorAll(".controlls-2 .num .btn.v.cv").forEach(element => {
+             $(element).hover(_ => {
+                 let allCaseNumber = element.dataset.num.split(",");
+                 allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                     $(element).addClass("hover");
+                 });
+             }, _ => {
+                 let allCaseNumber = element.dataset.num.split(",");
+                 allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                     $(element).removeClass("hover");
+                 });
+             });
+         }); */
 
         //For all "a cheval bet" vertical
-       /* document.querySelectorAll(".controlls-2 .num .btn.h.rh").forEach(element => {
-            $(element).hover(_ => {
-                let allCaseNumber = element.dataset.num.split(",");
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).addClass("hover");
-                });
-            }, _ => {
-                let allCaseNumber = element.dataset.num.split(",");
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).removeClass("hover");
-                });
-            });
-        }); */
+        /* document.querySelectorAll(".controlls-2 .num .btn.h.rh").forEach(element => {
+             $(element).hover(_ => {
+                 let allCaseNumber = element.dataset.num.split(",");
+                 allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                     $(element).addClass("hover");
+                 });
+             }, _ => {
+                 let allCaseNumber = element.dataset.num.split(",");
+                 allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                     $(element).removeClass("hover");
+                 });
+             });
+         }); */
 
         //For all square bet
-      /*  document.querySelectorAll(".controlls-2 .btn.c.rh.lg").forEach(element => {
-            $(element).hover(_ => {
-                let allCaseNumber = element.dataset.num.split(",");
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).addClass("hover");
-                });
-            }, _ => {
-                let allCaseNumber = element.dataset.num.split(",");
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).removeClass("hover");
-                });
-            });
-        }); */
+        /*  document.querySelectorAll(".controlls-2 .btn.c.rh.lg").forEach(element => {
+              $(element).hover(_ => {
+                  let allCaseNumber = element.dataset.num.split(",");
+                  allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                      $(element).addClass("hover");
+                  });
+              }, _ => {
+                  let allCaseNumber = element.dataset.num.split(",");
+                  allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                      $(element).removeClass("hover");
+                  });
+              });
+          }); */
 
         //For all double columns or double douzaine
-       /* document.querySelectorAll(".controlls-2 .sector .btn").forEach(element => {
-            $(element).hover(_ => {
-                let allSectorNumber = element.dataset.sector.split(",");
-                let allCaseNumber = sectors_values[allSectorNumber[0]].concat(sectors_values[allSectorNumber[1]])
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).addClass("hover");
-                });
-            }, _ => {
-                let allSectorNumber = element.dataset.sector.split(",");
-                let allCaseNumber = sectors_values[allSectorNumber[0]].concat(sectors_values[allSectorNumber[1]])
-                allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
-                    $(element).removeClass("hover");
-                });
-            });
-        }); */
+        /* document.querySelectorAll(".controlls-2 .sector .btn").forEach(element => {
+             $(element).hover(_ => {
+                 let allSectorNumber = element.dataset.sector.split(",");
+                 let allCaseNumber = sectors_values[allSectorNumber[0]].concat(sectors_values[allSectorNumber[1]])
+                 allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                     $(element).addClass("hover");
+                 });
+             }, _ => {
+                 let allSectorNumber = element.dataset.sector.split(",");
+                 let allCaseNumber = sectors_values[allSectorNumber[0]].concat(sectors_values[allSectorNumber[1]])
+                 allCaseNumber.map(x => getCaseByNumber(x)).forEach(element => {
+                     $(element).removeClass("hover");
+                 });
+             });
+         }); */
 
     }, 1000);
 });
 
 
 
-function drawChip(elementClicked, value) {
+function drawChip(elementClicked, value, isOwnBet,username) {
     let colorChip = "blue";
     if (value >= 5) {
         colorChip = "orange"
@@ -220,7 +220,8 @@ function drawChip(elementClicked, value) {
         colorChip = "gold"
     }
 
-    let chip = `<div class="chip-container"><div class="chip ${colorChip}" style=""><span class="chipSpan">${value}</span></div></div>`;
+
+    let chip = `<div class="chip-container ${isOwnBet ? "" : "online"}"><div class="chip ${colorChip}" style=""><span class="chipSpan">${value}</span><span style="display: none;">${username}</span></div></div>`;
     var wrapper = document.createElement('div');
     wrapper.innerHTML = chip;
     let img = wrapper.firstChild;
@@ -228,7 +229,6 @@ function drawChip(elementClicked, value) {
     img.style.position = "absolute";
 
     document.querySelector(".chips").appendChild(img);
-    console.log(elementClicked);
     let widthChip = img.clientWidth;
     let heightChip = img.clientHeight;
     img.style.left = (getCasePositionRelativeOfBody(elementClicked, widthChip, heightChip).left) + "px";
@@ -273,11 +273,12 @@ function getCasePositionRelativeOfBody(elementClicked, widthChip, heightChip) {
 }
 
 
-window.updateBetsView =  (bets) => {
+window.updateBetsView = (bets, userLogged) => {
     $(".locked").removeClass("locked")
     document.querySelector(".chips").innerHTML = "";
     bets.forEach((value, key) => {
-        drawChip(value.htmlElement, value.value);
+        let isOwnBet = (userLogged == value.username) ? true : false;
+        drawChip(value.htmlElement, value.value, isOwnBet,value.username);
         let numberSelected;
         if (key.split("-")[0] == "num") {
             numberSelected = key.split("-")[1].split(",");
@@ -290,7 +291,6 @@ window.updateBetsView =  (bets) => {
             let el = getCaseByNumber(number)
             $(el).addClass("locked")
         })
-
-
-    })
+    });
 }
+

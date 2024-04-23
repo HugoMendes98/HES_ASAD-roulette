@@ -39,7 +39,7 @@
 						"inlineStyleLanguage": "scss",
 						"outputPath": "dist/frontend",
 						"polyfills": ["zone.js"],
-						"scripts": ["src/assets/setupTable.js"],
+						"scripts": ["src/assets/setupTable.js","src/assets/wheels.js"],
 						"styles": [
 							"@angular/material/prebuilt-themes/purple-green.css",
 							"src/styles.scss"
