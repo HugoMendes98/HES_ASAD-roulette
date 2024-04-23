@@ -32,19 +32,26 @@ class User(db.Model):
         if curent_round.state != RoundStates.BIDABLE.value:
             raise Exception("Round is not bidable.")
 
-        the_bid = Bid.get_bids_from_user_and_round_with_bet(
-            user=self, round=curent_round, player_bet=player_bet
+        the_bid = Bid.get_bids_from_round_with_bet(
+            round=curent_round, player_bet=player_bet
         )
-        ''' removed from now, imp
+
+        is_new_bid = not the_bid  # if bet doesnt exists it is a new bet
+
+        # if bid already exists
+        if not is_new_bid:
+            if the_bid.user_id != self.id:
+                raise Exception("This slot is already taken by other user.")
+
+        """ removed from now, imp
         if len(the_bid) > 1:
             raise Exception(
                 "Cannot bet two or more bid from same player on  same round on same InOutBet. This is a critical error"
             )
-        '''
+        """
 
         absolute_wager = abs(wager)
         is_retrieving: bool = wager <= 0
-        is_new_bid = not the_bid  # if bet doesnt exists it is a new bet
 
         if is_retrieving:
             if is_new_bid:
@@ -52,16 +59,16 @@ class User(db.Model):
 
             computed_new_wager = the_bid.wager - absolute_wager
             if computed_new_wager <= 0:
-                if computed_new_wager < 0:
-                    print(
-                        "player tried to remove more money than the bet, remove bet instead"
-                    )
+                print(
+                    "player tried to remove more money than the bet, remove bet instead"
+                )
+                computed_new_wager = the_bid.wager
 
                 # we should do these in a transaction
                 Bid.delete_bid(bid_id=the_bid.id)
                 # this will break if more than 9'999'999.99
                 User.update_balance(
-                    user_id=self.id, new_balance=self.balance + absolute_wager
+                    user_id=self.id, new_balance=self.balance + computed_new_wager
                 )
 
             else:  # update with with lower value
@@ -78,7 +85,12 @@ class User(db.Model):
 
             # we should do these in a transaction
             if is_new_bid:
-                Bid.new(inOutbet=player_bet, user=self, round=curent_round, wager=absolute_wager)
+                Bid.new(
+                    inOutbet=player_bet,
+                    user=self,
+                    round=curent_round,
+                    wager=absolute_wager,
+                )
             else:
                 computed_new_wager = the_bid.wager + absolute_wager
                 Bid.update_wager(bid_id=the_bid.id, new_wager=computed_new_wager)
@@ -87,8 +99,8 @@ class User(db.Model):
                 user_id=self.id, new_balance=self.balance - absolute_wager
             )
 
-        return Bid.get_bids_from_user_and_round_with_bet(
-            user=self, round=curent_round, player_bet=player_bet
+        return Bid.get_bids_from_round_with_bet(
+            round=curent_round, player_bet=player_bet
         )
 
     @classmethod
@@ -107,7 +119,6 @@ class User(db.Model):
     @classmethod
     def get_by_id(cls, user_id):
         return db.session.query(cls).filter_by(id=user_id).one_or_none()
-
 
     @classmethod
     def new(cls, username, password_hash=None):
