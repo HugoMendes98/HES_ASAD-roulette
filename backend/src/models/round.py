@@ -85,7 +85,7 @@ class Round(db.Model):
 			Bid.update_is_won(bid.id, self.winning_slot)
 
 	def update_state(
-		self, new_state: InOutBets, next_state_timestamp=None
+		self, new_state, next_state_timestamp=None
 	) -> bool:
 		self.state = new_state.value
 		self.next_state_timestamp = next_state_timestamp
