@@ -1,12 +1,8 @@
 # Title 
 
-## Author
-
-```
-Alban Favre
-```
-
 ## Content
+
+"Use case" -> (truc avec un stimilus/réponse)
 
 ### S1
 
@@ -56,6 +52,8 @@ ajouter une variable is_canceled pour garder une trace des rounds annulé
 
 front: si t'es deco message pour dire que ce que le user voit n'est pas garentis
 
+back: après un délai, envoyer un event du style 'is-up'
+
 #### schema
 
 requirement: ajouter le concept de transaction et de restauration
@@ -66,10 +64,11 @@ vraiment pour le client, il doit pouvoir miser, partir manger et gagner ou perdr
 
 ### Bonus
 
-- pouvoir voir les mise en RESULT
-- on améliore le tapis (ajouter les piare couleur multi paris)
-- multiple games
+1. Pouvoir voir les mise en RESULT
+2. (front) retirer les mises du tapis (un DELETE du bid)
+3. multiple games
   - timer par game ??
-- retirer les mises du tapis (un DELETE du bid)
-- pouvoir recup l'historique ou/et game
+4. on améliore le tapis (ajouter les piare couleur multi paris)
+5. pouvoir recup l'historique ou/et game
+99. (back: plus REST friendly) retirer les mises du tapis (un DELETE du bid)
 
