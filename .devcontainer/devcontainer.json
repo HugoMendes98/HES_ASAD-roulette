@@ -9,6 +9,7 @@
 				"EditorConfig.EditorConfig",
 				"GitHub.vscode-pull-request-github",
 				"Gruntfuggly.todo-tree",
+				"bierner.markdown-mermaid",
 				"charliermarsh.ruff",
 				"dbaeumer.vscode-eslint",
 				"exiasr.hadolint",

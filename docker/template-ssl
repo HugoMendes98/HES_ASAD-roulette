@@ -1,0 +1,3 @@
+map $host $ssl_port {
+  default "$SSL_PORT";
+}

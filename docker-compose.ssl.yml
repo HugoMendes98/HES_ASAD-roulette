@@ -1,0 +1,24 @@
+version: "3.10"
+
+services:
+  proxy:
+    # "Disable" the exported ports
+    ports: !override []
+
+  ssl:
+    image: nginx:1.25-alpine
+    depends_on:
+      - proxy
+    env_file:
+      - path: ./.env
+        required: true 
+    environment:
+      SSL_PORT: ${SSL_PORT}
+    ports:
+      - "8080:80"
+      - "${SSL_PORT}:443"
+    volumes:
+      - ./docker/nginx-ssl.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/ssl/:/srv/ssl/:ro
+      - ./docker/template-ssl:/etc/nginx/templates/10-variables.conf.template:ro
+
