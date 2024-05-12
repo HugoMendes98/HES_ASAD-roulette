@@ -198,6 +198,12 @@
 				"@typescript-eslint/prefer-ts-expect-error": "error",
 				"@typescript-eslint/sort-type-constituents": "error",
 				"@typescript-eslint/type-annotation-spacing": "error",
+				"@typescript-eslint/unbound-method": [
+					"error",
+					{
+						"ignoreStatic": true
+					}
+				],
 				"decorator-position/decorator-position": [
 					"error",
 					{

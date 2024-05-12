@@ -1,6 +1,9 @@
 export interface LoginDto {
+	password: string;
 	username: string;
 }
+export type SignupDto = LoginDto;
+
 export interface UserDto extends LoginDto {
 	balance: number;
 	id: number;

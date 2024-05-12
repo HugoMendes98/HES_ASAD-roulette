@@ -1,10 +1,12 @@
-<mat-toolbar color="primary">
+<mat-toolbar class="flex flex-row gap-2 justify-c-between" color="primary">
 	<div id="state">
 		<mat-icon *ngIf="isConnected()">wifi</mat-icon>
 		<mat-icon *ngIf="!isConnected()" color="accent">wifi_off</mat-icon>
 	</div>
 
-	<div *ngIf="user() as user">
+	<div *ngIf="user() as user" class="align-i-center flex gap-4">
+		<span>{{ user.username }} - {{ user.balance }}$</span>
+
 		<button
 			color="error"
 			mat-raised-button
@@ -13,25 +15,16 @@
 		>
 			Logout
 		</button>
-
-		<span>{{ user.username }} - {{ user.balance }}$</span>
 	</div>
 
 	<div *ngIf="user() === null">
-		<input
-			placeholder="username"
-			required=""
-			type="text"
-			[(ngModel)]="username"
-		/>
 		<button
 			color="accent"
 			mat-raised-button
 			type="button"
-			[disabled]="username === ''"
-			(click)="login()"
+			(click)="goToLogin()"
 		>
-			Connect
+			Login
 		</button>
 	</div>
 </mat-toolbar>

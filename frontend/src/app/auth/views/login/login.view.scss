@@ -1,0 +1,10 @@
+:host {
+	justify-content: center;
+	display: flex;
+}
+
+mat-card {
+	flex: 1;
+	margin-top: 40px;
+	max-width: 500px;
+}

@@ -4,8 +4,9 @@ from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-from .logic import event_loop, roulette_logic_blueprint
+from .logic import event_loop
 from .models import register_models
+from .routes import roulette_logic_blueprint
 
 
 def create_app():

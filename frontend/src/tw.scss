@@ -1,0 +1,282 @@
+// This is highly inspired by tailwind (https://tailwindcss.com/)
+
+@mixin base($spacing, $colors: (), $prefix: "", $pseudo: "") {
+	$prefix: if($prefix == "", "", "#{$prefix}\\:");
+	$pseudo: if($pseudo == "", "", ":#{$pseudo}");
+
+	// display related
+	.#{$prefix}block#{$pseudo} {
+		display: block;
+	}
+	.#{$prefix}hidden#{$pseudo} {
+		display: none;
+	}
+
+	// visibility related
+	.#{$prefix}v-hidden#{$pseudo} {
+		visibility: hidden;
+	}
+
+	// Size related
+	.#{$prefix}h-100#{$pseudo} {
+		height: 100%;
+	}
+	.#{$prefix}w-100#{$pseudo} {
+		width: 100%;
+	}
+
+	// position related
+	.#{$prefix}absolute#{$pseudo} {
+		position: absolute;
+	}
+	.#{$prefix}fixed#{$pseudo} {
+		position: fixed;
+	}
+	.#{$prefix}relative#{$pseudo} {
+		position: relative;
+	}
+	.#{$prefix}sticky#{$pseudo} {
+		position: sticky;
+	}
+
+	// overflow related
+	.#{$prefix}overflow-auto#{$pseudo} {
+		overflow: auto;
+	}
+	.#{$prefix}overflow-hidden#{$pseudo} {
+		overflow: hidden;
+	}
+
+	// flex related
+	.#{$prefix}flex#{$pseudo} {
+		display: flex;
+	}
+
+	.#{$prefix}flex-0#{$pseudo} {
+		flex: 0;
+	}
+	.#{$prefix}flex-1#{$pseudo} {
+		flex: 1;
+	}
+
+	.#{$prefix}flex-col#{$pseudo} {
+		flex-direction: column;
+	}
+
+	.#{$prefix}flex-row#{$pseudo} {
+		flex-direction: row;
+	}
+
+	.#{$prefix}flex-col-reverse#{$pseudo} {
+		flex-direction: column-reverse;
+	}
+
+	.#{$prefix}flex-row-reverse#{$pseudo} {
+		flex-direction: row-reverse;
+	}
+
+	.#{$prefix}flex-wrap#{$pseudo} {
+		flex-wrap: wrap;
+	}
+
+	.#{$prefix}align-i-start#{$pseudo} {
+		align-items: flex-start;
+	}
+
+	.#{$prefix}align-i-center#{$pseudo} {
+		align-items: center;
+	}
+
+	.#{$prefix}align-i-end#{$pseudo} {
+		align-items: flex-end;
+	}
+
+	.#{$prefix}align-s-start#{$pseudo} {
+		align-self: flex-start;
+	}
+
+	.#{$prefix}align-s-center#{$pseudo} {
+		align-self: center;
+	}
+
+	.#{$prefix}align-s-end#{$pseudo} {
+		align-self: flex-end;
+	}
+
+	.#{$prefix}justify-c-start#{$pseudo} {
+		justify-content: flex-start;
+	}
+
+	.#{$prefix}justify-c-center#{$pseudo} {
+		justify-content: center;
+	}
+
+	.#{$prefix}justify-c-end#{$pseudo} {
+		justify-content: flex-end;
+	}
+
+	.#{$prefix}justify-c-between#{$pseudo} {
+		justify-content: space-between;
+	}
+
+	.#{$prefix}justify-c-evenly#{$pseudo} {
+		justify-content: space-evenly;
+	}
+
+	// font related
+	.#{$prefix}font-bold#{$pseudo} {
+		font-weight: bold;
+	}
+
+	.#{$prefix}font-italic#{$pseudo} {
+		font-style: italic;
+	}
+
+	// text related
+	.#{$prefix}text-xs#{$pseudo} {
+		font-size: 0.75rem;
+		line-height: 1rem;
+	}
+	.#{$prefix}text-sm#{$pseudo} {
+		font-size: 0.875rem;
+		line-height: 1.25rem;
+	}
+	.#{$prefix}text-base#{$pseudo} {
+		font-size: 1rem;
+		line-height: 1.5rem;
+	}
+	.#{$prefix}text-lg#{$pseudo} {
+		font-size: 1.125rem;
+		line-height: 1.75rem;
+	}
+	.#{$prefix}text-xl#{$pseudo} {
+		font-size: 1.25rem;
+		line-height: 1.75rem;
+	}
+	.#{$prefix}text-2xl#{$pseudo} {
+		font-size: 1.5rem;
+		line-height: 2rem;
+	}
+	.#{$prefix}text-3xl#{$pseudo} {
+		font-size: 1.875rem;
+		line-height: 2.25rem;
+	}
+	.#{$prefix}text-4xl#{$pseudo} {
+		font-size: 2.25rem;
+		line-height: 2.5rem;
+	}
+	.#{$prefix}text-5xl#{$pseudo} {
+		font-size: 3rem;
+		line-height: 1;
+	}
+
+	.#{$prefix}text-uppercase#{$pseudo} {
+		text-transform: uppercase;
+	}
+
+	.#{$prefix}text-left#{$pseudo} {
+		text-align: left;
+	}
+	.#{$prefix}text-center#{$pseudo} {
+		text-align: center;
+	}
+	.#{$prefix}text-right#{$pseudo} {
+		text-align: right;
+	}
+
+	.#{$prefix}text-underline#{$pseudo} {
+		text-decoration: underline;
+	}
+
+	// cursor related
+	.#{$prefix}cursor-default#{$pseudo} {
+		cursor: default;
+	}
+	.#{$prefix}cursor-pointer#{$pseudo} {
+		cursor: pointer;
+	}
+
+	// spacing rules
+	@each $size, $value in $spacing {
+		// example: https://tailwindcss.com/docs/gap
+		.#{$prefix}gap-#{$size}#{$pseudo} {
+			gap: $value;
+		}
+		.#{$prefix}gap-x-#{$size}#{$pseudo} {
+			column-gap: $value;
+		}
+		.#{$prefix}gap-y-#{$size}#{$pseudo} {
+			row-gap: $value;
+		}
+
+		// example: https://tailwindcss.com/docs/margin
+		.#{$prefix}m-#{$size}#{$pseudo} {
+			margin: $value;
+		}
+		.#{$prefix}mx-#{$size}#{$pseudo} {
+			margin-left: $value;
+			margin-right: $value;
+		}
+		.#{$prefix}my-#{$size}#{$pseudo} {
+			margin-bottom: $value;
+			margin-top: $value;
+		}
+		.#{$prefix}mt-#{$size}#{$pseudo} {
+			margin-top: $value;
+		}
+		.#{$prefix}mr-#{$size}#{$pseudo} {
+			margin-right: $value;
+		}
+		.#{$prefix}mb-#{$size}#{$pseudo} {
+			margin-bottom: $value;
+		}
+		.#{$prefix}ml-#{$size}#{$pseudo} {
+			margin-left: $value;
+		}
+
+		// example: https://tailwindcss.com/docs/padding
+		.#{$prefix}p-#{$size}#{$pseudo} {
+			padding: $value;
+		}
+		.#{$prefix}px-#{$size}#{$pseudo} {
+			padding-left: $value;
+			padding-right: $value;
+		}
+		.#{$prefix}py-#{$size}#{$pseudo} {
+			padding-bottom: $value;
+			padding-top: $value;
+		}
+		.#{$prefix}pt-#{$size}#{$pseudo} {
+			padding-top: $value;
+		}
+		.#{$prefix}pr-#{$size}#{$pseudo} {
+			padding-right: $value;
+		}
+		.#{$prefix}pb-#{$size}#{$pseudo} {
+			padding-bottom: $value;
+		}
+		.#{$prefix}pl-#{$size}#{$pseudo} {
+			padding-left: $value;
+		}
+
+		.#{$prefix}border-radius-#{$size}#{$pseudo} {
+			border-radius: $value;
+		}
+	}
+
+	// TODO
+	// Color related
+	.#{$prefix}color-white#{$pseudo} {
+		color: white;
+	}
+
+	.#{$prefix}color-black#{$pseudo} {
+		color: #1c1c1e;
+	}
+
+	@each $name, $value in $colors {
+		.#{$prefix}bg-#{$name}#{$pseudo} {
+			background-color: $value;
+		}
+	}
+}

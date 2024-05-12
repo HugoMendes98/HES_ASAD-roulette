@@ -20,11 +20,22 @@ By default, the application is available at `http://localhost:8080`.
 docker compose -f ./docker-compose.yml -f ./docker-compose.ssl.yml up
 ```
 
+> Do not forget the `-f ./docker-compose.yml -f ./docker-compose.ssl.yml` when using different commands (such as `restart`, `down`, ...)
+
 By default, the application is available at `http://localhost:8080` and `https://localhost:8443`.
 
 > The HTTP always redirect to HTTPS.  
 > The default certificates are self-signed.
 
+### Refresh services
+
+If there is an existing running _docker-compose_, the services (backend and/or frontend) can be rebuild and replaced with the following command:
+
+```bash
+docker compose up --build <service>
+```
+
+> It recreates the images and will only down the previous when ready to be restarted.
 
 ### Schema
 

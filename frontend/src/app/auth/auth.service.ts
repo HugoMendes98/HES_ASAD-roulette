@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, map } from "rxjs";
 
-import { GameApiService, LoginDto, UserDto } from "../../lib/api";
+import { GameApiService, LoginDto, SignupDto, UserDto } from "../../lib/api";
 
 /**
  * When the user of the {@link AuthService} is connected
@@ -75,6 +75,11 @@ export class AuthService {
 		});
 	}
 
+	public signup(body: SignupDto) {
+		// FIXME
+		return this.login(body);
+	}
+
 	public logout() {
 		localStorage.removeItem(AuthService.LOCAL_STORAGE_AUTH);
 		this.userState.next({ type: "unconnected" });
@@ -86,7 +91,8 @@ export class AuthService {
 	 * @returns logged user
 	 */
 	public getProfile(auth: string) {
-		return this.login({ username: auth });
+		// FIXME
+		return this.login({ password: "", username: auth });
 	}
 
 	/**

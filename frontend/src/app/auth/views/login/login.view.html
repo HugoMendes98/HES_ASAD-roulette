@@ -1,0 +1,61 @@
+<mat-card>
+	<mat-card-header>
+		<mat-card-title>{{
+			isSignup() ? "Create an account" : "Connect to your account"
+		}}</mat-card-title>
+	</mat-card-header>
+
+	<mat-card-content>
+		<form class="flex flex-col gap-4" (ngSubmit)="submit()">
+			<mat-form-field>
+				<mat-label>Username</mat-label>
+				<input
+					matInput
+					name="username"
+					type="text"
+					[formControl]="form.controls.username"
+				/>
+			</mat-form-field>
+
+			<mat-form-field>
+				<mat-label>Password</mat-label>
+				<input
+					matInput
+					name="password"
+					[formControl]="form.controls.password"
+					[readonly]="showPassword"
+					[type]="showPassword ? 'text' : 'password'"
+				/>
+
+				<button
+					mat-icon-button
+					matIconSuffix
+					type="button"
+					(pointerdown)="showPassword = !showPassword"
+				>
+					<mat-icon *ngIf="showPassword">visibility_off</mat-icon>
+					<mat-icon *ngIf="!showPassword">visibility</mat-icon>
+				</button>
+			</mat-form-field>
+
+			<button
+				color="primary"
+				mat-raised-button
+				type="submit"
+				[disabled]="form.invalid"
+			>
+				{{ isSignup() ? "Signup" : "Login" }}
+			</button>
+		</form>
+
+		<p>
+			Want to
+			<a
+				queryParamsHandling="preserve"
+				[routerLink]="'/' + (isSignup() ? PATHS.login : PATHS.signup)"
+			>
+				{{ isSignup() ? "login" : "signup" }} </a
+			>?
+		</p>
+	</mat-card-content>
+</mat-card>

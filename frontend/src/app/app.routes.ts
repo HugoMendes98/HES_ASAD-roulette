@@ -1,6 +1,7 @@
 import { Routes } from "@angular/router";
 
 import { APP_PATHS } from "./app.path";
+import type { LoginViewRouteData } from "./auth/views/login/login.view";
 
 export const routes: Routes = [
 	{
@@ -13,6 +14,18 @@ export const routes: Routes = [
 	// 	import("./game/views/games/games.view").then(v => v.GamesView),
 	// path: APP_PATHS.games.path,
 	//},
+	{
+		data: { isSignup: false } satisfies LoginViewRouteData,
+		loadComponent: () =>
+			import("./auth/views/login/login.view").then(v => v.LoginView),
+		path: APP_PATHS.auth.login,
+	},
+	{
+		data: { isSignup: true } satisfies LoginViewRouteData,
+		loadComponent: () =>
+			import("./auth/views/login/login.view").then(v => v.LoginView),
+		path: APP_PATHS.auth.signup,
+	},
 	{
 		// Should be a not found page
 		path: "**",
