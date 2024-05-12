@@ -78,6 +78,7 @@ def test_negative_bet_cheating(client):
 	assert not b_2  # bid should have been deleted
 	assert u.balance == 200
 
+
 def test_winning(client):
 	g = Game.new()
 	u = User.new(password_hash="asdkdlj", username="Jean Cheat")
@@ -91,13 +92,12 @@ def test_winning(client):
 
 	assert b_1.wager == 10
 	assert u.balance == 180
-	
+
 	g.go_to_waiting()
 	g.go_to_result(Slots.ELEVEN)
 
 	assert u.balance == 180 + 10 * 36
 
-	
 
 def test_slot_reservation(client):
 	g = Game.new()
@@ -249,7 +249,7 @@ def test_post_bid(client):
 		content_type="application/json",
 	)
 	assert r.status_code == 201
-	
+
 	r2 = client.post(
 		"/api/games/1/bet",
 		data=json.dumps(dict(position_id=1, value=5, username="oly")),
@@ -257,7 +257,6 @@ def test_post_bid(client):
 	)
 	assert r2.json["balance"] == 185
 	assert r2.status_code == 201
-
 
 	r3 = client.post(
 		"/api/games/1/bet",
@@ -275,13 +274,14 @@ def test_post_bid(client):
 	assert r4.json["balance"] == 195
 	assert r4.status_code == 201
 
+
 def test_login(client):
 	User.new(username="oly")
 	g = Game.get(1)
 	g.go_to_idle()
 	g.go_to_bidable()
 	r = client.post(
-		"/api/games/user/login",
+		"/api/user/login",
 		data=json.dumps(dict(username="oly")),
 		content_type="application/json",
 	)

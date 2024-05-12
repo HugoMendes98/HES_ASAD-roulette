@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, map } from "rxjs";
 
-import { GameApiService, LoginDto, SignupDto, UserDto } from "../../lib/api";
+import { AuthApiService, LoginDto, SignupDto, UserDto } from "../../lib/api";
 
 /**
  * When the user of the {@link AuthService} is connected
@@ -30,7 +30,7 @@ export type AuthUserState =
 	| (AuthUserStateConnected & { type: "connected" })
 	| (AuthUserStateUnconnected & { type: "unconnected" });
 
-@Injectable({ deps: [GameApiService], providedIn: "root" })
+@Injectable({ deps: [AuthApiService], providedIn: "root" })
 export class AuthService {
 	private static LOCAL_STORAGE_AUTH = "auth_id";
 
@@ -52,7 +52,7 @@ export class AuthService {
 	 */
 	private readonly userState = AuthService.userState;
 
-	public constructor(private readonly apiService: GameApiService) {
+	public constructor(private readonly apiService: AuthApiService) {
 		// This is just for type checking
 		this.userState$ = this.userState;
 		this.user$ = this.userState$.pipe(

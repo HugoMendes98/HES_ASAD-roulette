@@ -1,58 +1,12 @@
 from datetime import datetime, timedelta
 from random import randint
 
-from flask import current_app, request
 from flask_socketio import SocketIO
 
-from . import config, roulette_logic_blueprint
-from .models import Game, User
-from .models.round_info import InOutBets, RoundStates, Slots
+from . import config
+from .models import Game
+from .models.round_info import RoundStates, Slots
 from .sockets import get_game_socket_path, register_sockets
-
-
-@roulette_logic_blueprint.post("/<game_id>/bet")
-def add_bet(game_id):
-	# request json:
-	# "position_id":
-	# "value" signed integer
-
-	r = request.json
-	user = User.get(r["username"])
-	if user is None:
-		return "Forbidden", 401
-
-	game = Game.get(int(game_id))
-	if game is None:
-		return "NotFound", 404
-
-	try:
-		bid = user.bet(InOutBets(r["position_id"]), r["value"], game)
-	except Exception as exc:
-		print("add_bet route: exception occured:", exc)
-		return f"error: {exc}", 422
-
-	current_round = game.get_last_round()
-
-	socketio: SocketIO = current_app.socketio_instance
-	socketio.emit(get_game_socket_path(game), current_round.to_json())
-
-	if bid is not None:
-		return {
-			"value": int(bid.wager),
-			"position_id": bid.inOutbet,
-			"balance": user.balance,
-		}, 201
-	else:
-		return {"balance": user.balance}, 201
-
-
-@roulette_logic_blueprint.get("/<game_id>/status")
-def get_game_satus(game_id):
-	game = Game.get(int(game_id))
-	if game is None:
-		return "NotFound", 404
-
-	return game.get_last_round().to_json()
 
 
 def event_loop(app):

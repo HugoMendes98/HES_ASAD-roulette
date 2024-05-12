@@ -17,4 +17,9 @@ Or (to resolve relative imports):
 python3 main.py
 ```
 
+Run in debug (auto-reload, etc.):
+```bash
+flask --app src/app.py run --debug
+```
+
 go to http://localhost:5000

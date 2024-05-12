@@ -1,6 +1,7 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
 
 import { API_CLIENT_CONFIG_TOKEN, ApiClient } from "./api.client";
+import { AuthApiService } from "./auth-api.service";
 import { GameApiService } from "./game-api.service";
 import { Environment } from "../../environment";
 
@@ -9,7 +10,7 @@ export interface ApiModuleConfig {
 	api: Environment["api"];
 }
 
-@NgModule({ imports: [ApiClient], providers: [GameApiService] })
+@NgModule({ imports: [ApiClient], providers: [AuthApiService, GameApiService] })
 export class ApiModule {
 	public static forRoot(
 		config: ApiModuleConfig,

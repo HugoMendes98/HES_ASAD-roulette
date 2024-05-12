@@ -6,7 +6,8 @@ from flask_socketio import SocketIO
 
 from .logic import event_loop
 from .models import register_models
-from .routes import roulette_logic_blueprint
+from .routes.auth import auth_blueprint
+from .routes.game import game_blueprint
 
 
 def create_app():
@@ -14,11 +15,12 @@ def create_app():
 	app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
 		"DATABASE_URI", "sqlite://"
 	)
+
 	register_models(app)
-	app.register_blueprint(roulette_logic_blueprint)
+	app.register_blueprint(auth_blueprint)
+	app.register_blueprint(game_blueprint)
 
 	CORS(app, origins="*")
-
 	app.socketio_instance = socketio = SocketIO(
 		app, cors_allowed_origins="*", logger=True
 	)
