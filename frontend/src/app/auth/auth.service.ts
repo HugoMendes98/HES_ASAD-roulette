@@ -1,17 +1,19 @@
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, map } from "rxjs";
 
-import { AuthApiService, LoginDto, SignupDto, UserDto } from "../../lib/api";
+import {
+	AuthApiService,
+	AuthLoginDto,
+	AuthSignupDto,
+	AuthTokenResponse,
+	UserDto,
+} from "../../lib/api";
+import { RequestOptions } from "../../lib/api/api.client";
 
 /**
  * When the user of the {@link AuthService} is connected
  */
-export interface AuthUserStateConnected {
-	/**
-	 * The connected user
-	 */
-	user: UserDto;
-}
+export type AuthUserStateConnected = AuthTokenResponse;
 
 /**
  * When there is no connected user in {@link AuthService}
@@ -47,9 +49,7 @@ export class AuthService {
 	/** Current connected user or null */
 	public readonly user$: Observable<UserDto | null>;
 
-	/**
-	 * Subject for authUserState
-	 */
+	/** Subject for authUserState */
 	private readonly userState = AuthService.userState;
 
 	public constructor(private readonly apiService: AuthApiService) {
@@ -60,24 +60,31 @@ export class AuthService {
 		);
 	}
 
+	/** Get the stored auth token */
+	public getAuthToken() {
+		return localStorage.getItem(AuthService.LOCAL_STORAGE_AUTH) ?? false;
+	}
+	/** Has a stored auth token */
+	public hasAuthToken() {
+		return this.getAuthToken() !== false;
+	}
+
 	/**
 	 * Logs a user with the given credentials
 	 *
 	 * @param body credentials
 	 * @returns the connected user
 	 */
-	public login(body: LoginDto) {
-		return this.apiService.login(body).then(user => {
-			localStorage.setItem(AuthService.LOCAL_STORAGE_AUTH, user.username);
-			this.userState.next({ type: "connected", user });
-
-			return user;
-		});
+	public login(body: AuthLoginDto) {
+		return this.apiService
+			.login(body)
+			.then(response => this.afterTokenResponse(response));
 	}
 
-	public signup(body: SignupDto) {
-		// FIXME
-		return this.login(body);
+	public signup(body: AuthSignupDto) {
+		return this.apiService
+			.signup(body)
+			.then(response => this.afterTokenResponse(response));
 	}
 
 	public logout() {
@@ -90,22 +97,34 @@ export class AuthService {
 	 * @param auth identification
 	 * @returns logged user
 	 */
-	public getProfile(auth: string) {
-		// FIXME
-		return this.login({ password: "", username: auth });
+	public refreshProfile() {
+		return this.apiService
+			.getMe()
+			.then(response => this.afterTokenResponse(response));
 	}
 
-	/**
-	 * Will try to refresh the profile if theres something in the local storage
-	 */
-	public async refreshProfile() {
-		const auth = this.getLocalStoredAuth();
-		if (auth) {
-			await this.getProfile(auth);
+	/** This will try to refresh if there is a stored auth token */
+	public tryRefreshProfile() {
+		if (!this.hasAuthToken()) {
+			return Promise.resolve(false);
 		}
+
+		return this.refreshProfile();
 	}
 
-	private getLocalStoredAuth() {
-		return localStorage.getItem(AuthService.LOCAL_STORAGE_AUTH);
+	/** Will refresh the auth token */
+	public async refreshAuth(options?: Pick<RequestOptions, "context">) {
+		return this.apiService
+			.refresh(options)
+			.then(response => this.afterTokenResponse(response));
+	}
+
+	private afterTokenResponse(response: AuthTokenResponse) {
+		const { token, user } = response;
+
+		localStorage.setItem(AuthService.LOCAL_STORAGE_AUTH, token);
+		this.userState.next({ type: "connected", ...response });
+
+		return user;
 	}
 }

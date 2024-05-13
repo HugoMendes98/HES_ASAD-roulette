@@ -10,6 +10,11 @@ class User(db.Model):
 	def set_on_update_balance(listener):
 		User.listeners_update_balance.append(listener)
 
+	@staticmethod
+	def hash_password(password_raw: str):
+		# TODO: hash
+		return password_raw
+
 	id = db.Column(db.Integer, primary_key=True)
 
 	# for now is unique
@@ -17,9 +22,7 @@ class User(db.Model):
 
 	# starts with 200$
 	balance = db.Column(db.Integer, nullable=False, default=200.00)
-	password_hash = db.Column(
-		db.String(64), nullable=False, default="placehodlerForSLOWHash"
-	)
+	password_hash = db.Column(db.String(), nullable=False)
 
 	def __repr__(self):
 		return "<User %r>" % self.username
@@ -128,19 +131,39 @@ class User(db.Model):
 		raise Exception("User not found.")
 
 	@classmethod
-	def get(cls, username):
+	def get_by_username(cls, username: str):
 		return db.session.query(cls).filter_by(username=username).one_or_none()
+
+	@classmethod
+	def get_by_credentials(cls, username: str, password: str):
+		user = User.get_by_username(username)
+		# Always do the hash to avoid time attack
+		password_hash = User.hash_password(password)
+
+		if user is not None and user.password_hash == password_hash:
+			return user
+
+		return None
 
 	@classmethod
 	def get_by_id(cls, user_id):
 		return db.session.query(cls).filter_by(id=user_id).one_or_none()
 
 	@classmethod
-	def new(cls, username, password_hash=None):
-		args = {"username": username}
-		if password_hash is not None:
-			args["password_hash"] = password_hash
+	def new(cls, username: str, password: str):
+		args = {
+			"username": username,
+			"password_hash": User.hash_password(password),
+		}
+
 		new_user = cls(**args)
 		db.session.add(new_user)
 		db.session.commit()
 		return new_user
+
+	def to_json(self):
+		return {
+			"id": self.id,
+			"username": self.username,
+			"balance": self.balance,
+		}

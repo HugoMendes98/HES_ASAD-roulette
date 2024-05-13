@@ -1,12 +1,7 @@
-export interface LoginDto {
-	password: string;
-	username: string;
-}
-export type SignupDto = LoginDto;
-
-export interface UserDto extends LoginDto {
+export interface UserDto {
 	balance: number;
 	id: number;
+	username: string;
 }
 
 export enum InOutBets {
@@ -50,6 +45,6 @@ export enum InOutBets {
 
 export interface BidCreateDto {
 	position_id: InOutBets;
-	username: string;
+	username: string; // FIXME: to remove
 	value: number;
 }

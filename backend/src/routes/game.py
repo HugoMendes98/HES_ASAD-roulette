@@ -1,27 +1,26 @@
 from flask import Blueprint, current_app, request
+from flask_jwt_extended import jwt_required
 from flask_socketio import SocketIO
 
-from ..models import Game, User
+from ..models import Game
 from ..models.round_info import InOutBets
 from ..sockets import get_game_socket_path
+from .auth_utils import get_current_user
 from .common import API_PREFIX
 
 game_blueprint = Blueprint("game", __name__, url_prefix=API_PREFIX + "/games")
 
 
 @game_blueprint.post("/<game_id>/bet")
+@jwt_required()
 def add_bet(game_id):
-	# TODO: get user from auth
-
 	# request json:
 	# "position_id":
 	# "value" signed integer
 
-	r = request.json
-	user = User.get(r["username"])
-	if user is None:
-		return "Forbidden", 401
+	user = get_current_user()
 
+	r = request.json
 	game = Game.get(int(game_id))
 	if game is None:
 		return "NotFound", 404
@@ -41,7 +40,6 @@ def add_bet(game_id):
 		return {
 			"value": int(bid.wager),
 			"position_id": bid.inOutbet,
-			"balance": user.balance,
 		}, 201
 	else:
 		return {"balance": user.balance}, 201

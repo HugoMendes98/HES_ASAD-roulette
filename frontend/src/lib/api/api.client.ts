@@ -1,6 +1,7 @@
 import {
 	HttpClient,
 	HttpClientModule,
+	HttpContext,
 	HttpEvent,
 	HttpHeaders,
 	HttpParams,
@@ -33,6 +34,7 @@ export const API_CLIENT_CONFIG_TOKEN = "_API_CLIENT_CONFIG_";
  * Request options
  */
 export interface RequestOptions {
+	context?: HttpContext;
 	/**
 	 * Headers to construct a request
 	 */

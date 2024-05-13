@@ -64,7 +64,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
 						return this.socketService.onBalanceUpdate(user.id).pipe(
 							debounceTime(250),
-							tap(() => void this.authService.refreshProfile()),
+							tap(
+								() => void this.authService.tryRefreshProfile(),
+							),
 						);
 					}),
 				)

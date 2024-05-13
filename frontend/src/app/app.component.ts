@@ -17,6 +17,6 @@ export class AppComponent implements OnInit {
 	public constructor(private readonly authService: AuthService) {}
 
 	public ngOnInit() {
-		void this.authService.refreshProfile();
+		void this.authService.tryRefreshProfile();
 	}
 }

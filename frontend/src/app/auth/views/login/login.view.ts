@@ -14,7 +14,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { Router, RouterModule } from "@angular/router";
 
-import { LoginDto } from "../../../../lib/api";
+import { AuthLoginDto } from "../../../../lib/api";
 import { FormControlsFrom } from "../../../../lib/forms";
 import { APP_PATHS } from "../../../app.path";
 import { AuthModule } from "../../auth.module";
@@ -56,7 +56,7 @@ export class LoginView
 	protected readonly PATHS = APP_PATHS.auth;
 
 	/** Login form */
-	protected readonly form = new FormGroup<FormControlsFrom<LoginDto>>({
+	protected readonly form = new FormGroup<FormControlsFrom<AuthLoginDto>>({
 		password: new FormControl("", {
 			nonNullable: true,
 			validators: [Validators.minLength(2), Validators.required],

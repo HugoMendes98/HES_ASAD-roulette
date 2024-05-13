@@ -2,8 +2,10 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from flask_socketio import SocketIO
 
+from . import config
 from .logic import event_loop
 from .models import register_models
 from .routes.auth import auth_blueprint
@@ -12,6 +14,10 @@ from .routes.game import game_blueprint
 
 def create_app():
 	app = Flask(__name__)
+
+	app.config["JWT_SECRET_KEY"] = os.environ.get("APP_SECRET", "super-secret")
+	app.config["JWT_ACCESS_TOKEN_EXPIRES"] = config.AUTH_JWT_DURATION
+
 	app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
 		"DATABASE_URI", "sqlite://"
 	)
@@ -26,6 +32,7 @@ def create_app():
 	)
 	socketio.start_background_task(event_loop, app)
 
+	JWTManager(app)
 	return app
 
 
