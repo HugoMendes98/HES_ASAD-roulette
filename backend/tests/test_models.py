@@ -225,6 +225,63 @@ def test_payout_full(client):
     assert len(w_b) == 1
     assert w_b[0].is_won
 
+def test_cancel_round(client):
+    g = Game.new()
+    u_1 = User.new(password="asdkdlj", username="Jean Test")
+    u_2 = User.new(password="asdkdlj", username="Test Andy")
+    # ---------------------------------------
+    g.go_to_idle()
+
+    assert not u_1.bids
+
+    r = g.get_last_round()
+    assert r.round_number == 1
+    assert r.state == RoundStates.IDLE.value
+    ts = r.timestamp
+    assert ts  # is not none ?
+    assert r.game_id == g.id
+    assert not r.winning_slot
+    assert not r.get_winning_bids()
+
+    with pytest.raises(Exception):
+        u_1.bet(game=g, player_bet=InOutBets.ELEVEN, wager=10)
+
+    # --------------------------------------
+    g.go_to_bidable()
+
+    assert u_1.bet(game=g, player_bet=InOutBets.ELEVEN, wager=10)
+    assert u_2.bet(game=g, player_bet=InOutBets.TWELVE, wager=30)
+
+    assert u_1.balance == 190
+    assert u_2.balance == 170
+
+    assert len(u_2.bids) == 1
+
+    b_1: Bid = Bid.get_bids_from_round_with_bet(round=r, player_bet=InOutBets.ELEVEN)
+    b_2: Bid = Bid.get_bids_from_round_with_bet(round=r, player_bet=InOutBets.TWELVE)
+
+    assert b_1.user_id == u_1.id
+    assert b_2.user_id == u_2.id
+
+    assert not b_2.is_won
+    assert b_2.wager == 30
+
+    assert u_2.bet(game=g, player_bet=InOutBets.TWELVE, wager=-20)
+
+
+    with pytest.raises(Exception):
+        u_1.bet(game=g, player_bet=InOutBets.ELEVEN, wager=10000)
+
+    r = g.get_last_round()
+
+    r.cancel_round()
+
+    assert r.is_canceled == True
+    assert b_1.wager == 0
+    assert b_2.wager == 0
+    assert u_2.balance == 200
+    assert u_1.balance == 200
+
 
 def test_post_bid(client):
     User.new(username="oly", password="secure_password_yes_yes")

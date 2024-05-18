@@ -2,7 +2,7 @@ from datetime import datetime
 
 from .db import db
 from .round_info import InOutBets, get_factor_from_InOutBets
-
+#from .user import User
 
 class Bid(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -21,6 +21,8 @@ class Round(db.Model):
     # pot = db.Column(db.Integer, nullable=False, default=0)
     winning_slot = db.Column(db.Integer, nullable=True)
 
+    is_canceled = db.Column(db.Boolean, nullable=False, default=False)
+
     # let us get a list of round from game
     game = db.relationship(
         "Game", backref="rounds", order_by="Round.round_number.desc()"
@@ -40,6 +42,10 @@ class Round(db.Model):
 
     def __repr__(self):
         return "<Round %r>" % self.id
+    
+    def canceled_check(self):
+        if self.is_canceled:
+            raise Exception("Round canceled!")
 
     # raises error if another player has taken the InOutBet for this round
     # return the player bid if one exists
@@ -64,6 +70,7 @@ class Round(db.Model):
     """
 
     def pay_out(self):
+        self.canceled_check()
         winning_bids = self.get_winning_bids()
         # in the current version of the roulette, we can only get 1 winner
         winning_bids_out = []
@@ -80,17 +87,37 @@ class Round(db.Model):
                 }
             )
         return winning_bids_out
+    
+    def cancel_round(self, is_txn=False,):
+        self.is_canceled = True
+        # give money back
+        for bid in self.bids:
+            self.refund_player(is_txn=True, bid=bid)
+        if not is_txn:
+            db.session.commit()
+
+    
+    # only use this when a round has been canceled
+    def refund_player(self, bid, is_txn=False):
+        user = User.get_by_id(bid.user_id)
+        user.update_balance(is_txn=True,new_balance=user.balance + bid.wager)
+        bid.update_wager(is_txn=True,new_wager=0)
+        if not is_txn:
+            db.session.commit()
 
     def update_winning_slot(self, new_winning_slot: Slots, is_txn=False) -> bool:
+        self.canceled_check()
         self.winning_slot = new_winning_slot.value
         if not is_txn:
             db.session.commit()
 
     def update_bids_after_result(self):
+        self.canceled_check()
         for bid in self.bids:
             bid.update_is_won(self.winning_slot)
 
     def update_state(self, new_state, next_state_timestamp=None, is_txn=False) -> bool:
+        self.canceled_check()
         self.state = new_state.value
         self.next_state_timestamp = next_state_timestamp
         if not is_txn:
