@@ -27,14 +27,15 @@ class Round(db.Model):
     )
 
     @classmethod
-    def new(cls, round_number, game, next_state_timestamp=None):
+    def new(cls, round_number, game, next_state_timestamp=None, is_txn=False):
         new_round = cls(
             round_number=round_number,
             game_id=game.id,
             next_state_timestamp=next_state_timestamp,
         )
         db.session.add(new_round)
-        db.session.commit()
+        if not is_txn:
+            db.session.commit()
         return new_round
 
     def __repr__(self):
@@ -56,7 +57,8 @@ class Round(db.Model):
             args["password_hash"] = password_hash
         new_user = cls(**args)
         db.session.add(new_user)
-        db.session.commit()
+        if not is_txn:
+            db.session.commit()
         return new_user
         
     """
@@ -79,27 +81,30 @@ class Round(db.Model):
             )
         return winning_bids_out
 
-    def update_winning_slot(self, new_winning_slot: Slots) -> bool:
+    def update_winning_slot(self, new_winning_slot: Slots, is_txn=False) -> bool:
         self.winning_slot = new_winning_slot.value
-        db.session.commit()
+        if not is_txn:
+            db.session.commit()
 
     def update_bids_after_result(self):
         for bid in self.bids:
             bid.update_is_won(self.winning_slot)
 
-    def update_state(self, new_state, next_state_timestamp=None) -> bool:
+    def update_state(self, new_state, next_state_timestamp=None, is_txn=False) -> bool:
         self.state = new_state.value
         self.next_state_timestamp = next_state_timestamp
-        db.session.commit()
+        if not is_txn:
+            db.session.commit()
         return True
 
     """
     @classmethod
-    def update_pot(cls, round_id, new_pot) -> bool:
+    def update_pot(cls, round_id, new_pot, is_txn=False) -> bool:
         n: Round = cls.query.get(round_id)
         if n:
             n.pot = new_pot
-            db.session.commit()
+            if not is_txn:
+                db.session.commit()
             return True
         raise Exception("Round not found.")
     """

@@ -16,10 +16,11 @@ class Game(db.Model):
         return db.session.query(cls).filter_by(id=game_id).one_or_none()
 
     @classmethod
-    def new(cls, id_=None):
+    def new(cls, id_=None, is_txn=False):
         new_game = cls(id=id_)
         db.session.add(new_game)
-        db.session.commit()
+        if not is_txn:
+            db.session.commit()
         return new_game
 
     def get_last_round(self) -> Round:

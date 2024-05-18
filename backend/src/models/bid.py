@@ -39,7 +39,7 @@ class Bid(db.Model):
         return wager >= 0
 
     @classmethod
-    def new(cls, wager, inOutbet: InOutBets, user, round):
+    def new(cls, wager, inOutbet: InOutBets, user, round, is_txn=False):
         n = cls(
             wager=wager,
             inOutbet=inOutbet.value,
@@ -48,7 +48,8 @@ class Bid(db.Model):
             game_id=round.game_id,
         )
         db.session.add(n)
-        db.session.commit()
+        if not is_txn:
+            db.session.commit()
         return n
 
     @classmethod
@@ -60,14 +61,10 @@ class Bid(db.Model):
         )
         return n
 
-    @classmethod
-    def delete_bid(cls, bid_id) -> bool:
-        n = cls.query.get(bid_id)
-        if n:
-            db.session.delete(n)
+    def delete_bid(self, is_txn=False) -> bool:
+        db.session.delete(self)
+        if not is_txn:
             db.session.commit()
-            return True
-        raise Exception("Bid not found.")
 
     def __repr__(self):
         return "<Bid %r>" % self.id
@@ -86,13 +83,15 @@ class Bid(db.Model):
         return n
     """
 
-    def update_wager(self, new_wager):
+    def update_wager(self, new_wager, is_txn=False):
         self.wager = new_wager
-        db.session.commit()
+        if not is_txn:
+            db.session.commit()
 
-    def update_is_won(self, winning_slot) -> bool:
+    def update_is_won(self, winning_slot, is_txn=False) -> bool:
         self.is_won = self.inOutbet == winning_slot
-        db.session.commit()
+        if not is_txn:
+            db.session.commit()
 
     def payout(self):
         return self.wager * get_factor_from_InOutBets(self.inOutbet)
