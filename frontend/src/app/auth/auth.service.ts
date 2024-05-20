@@ -121,6 +121,7 @@ export class AuthService {
 
 	private afterTokenResponse(response: AuthTokenResponse) {
 		const { token, user } = response;
+		console.log(response);
 
 		localStorage.setItem(AuthService.LOCAL_STORAGE_AUTH, token);
 		this.userState.next({ type: "connected", ...response });

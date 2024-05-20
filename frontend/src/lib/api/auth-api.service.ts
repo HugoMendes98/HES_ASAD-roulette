@@ -7,7 +7,13 @@ export interface AuthLoginDto {
 	password: string;
 	username: string;
 }
-export type AuthSignupDto = AuthLoginDto;
+
+export interface AuthSignupDto {
+	password: string;
+	username: string;
+	confirm: string;
+	
+}
 
 export interface AuthTokenResponse {
 	info: {

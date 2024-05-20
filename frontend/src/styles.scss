@@ -36,3 +36,14 @@ router-outlet + * {
 html {
 	@import "./roulette";
 }
+
+//Overide basic theme
+
+html{
+/*	--mdc-elevated-card-container-color : white;
+	--mdc-outlined-card-container-color : white;
+	--mdc-filled-text-field-container-color: lightgray;
+	--mdc-protected-button-disabled-label-text-color : black; */
+}
+
+
