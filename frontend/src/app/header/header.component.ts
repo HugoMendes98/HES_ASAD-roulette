@@ -12,6 +12,7 @@ import { APP_PATHS } from "../app.path";
 import { AuthModule } from "../auth/auth.module";
 import { AuthService } from "../auth/auth.service";
 import type { LoginViewQuery } from "../auth/views/login/login.view";
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
 	selector: "app-header",
@@ -35,8 +36,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 		this.socketService.isConnected$.pipe(
 			tap(connected => {
 				if (connected) {
-					//edit here
 					void this.authService.tryRefreshProfile();
+					this.openSnackBar("Connected to the server")
+				}
+				else {
+					this.openSnackBar("The connection with the server is lost. The information displayed cannot be guaranteed")
 				}
 			}),
 		),
@@ -51,7 +55,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 		private readonly authService: AuthService,
 		private readonly socketService: SocketService,
 		private readonly router: Router,
-	) {}
+		private _snackBar: MatSnackBar
+	) { }
 
 	public ngOnInit() {
 		this.subscription.add(
@@ -99,5 +104,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
 	protected logout() {
 		this.authService.logout();
+	}
+
+	private openSnackBar(message: string) {
+		this._snackBar.open(message, '', {
+			duration: 3000
+		});
 	}
 }
