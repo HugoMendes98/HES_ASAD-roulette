@@ -35,7 +35,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 		this.socketService.isConnected$.pipe(
 			tap(connected => {
 				if (connected) {
-					void this.authService.refreshProfile();
+					//edit here
+					void this.authService.tryRefreshProfile();
 				}
 			}),
 		),
