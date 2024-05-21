@@ -24,7 +24,7 @@ interface GameStateWithBets {
 export type GameStateBidable = GameStateBase<"BIDABLE"> & GameStateWithBets;
 export type GameStateWaiting = GameStateBase<"WAITING"> & GameStateWithBets;
 
-export interface GameStateResult extends GameStateBase<"RESULT"> {
+export interface GameStateResult extends GameStateBase<"RESULT">,GameStateWithBets  {
 	/** Number of the slot that wins */
 	winning_slot: number;
 }

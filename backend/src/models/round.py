@@ -160,6 +160,17 @@ class Round(db.Model):
 
             round_dict["bets"] = bets
         elif state == RoundStates.RESULT:
+            bets = [
+                {
+                    "username": bet.user.username,
+                    "inOutbet": bet.inOutbet,
+                    "wager": int(bet.wager),
+                }
+                for bet in self.bids
+            ]
+
+            round_dict["bets"] = bets
+
             round_dict["pay_out"] = self.pay_out()
             round_dict["winning_slot"] = self.winning_slot
         elif state == RoundStates.IDLE:

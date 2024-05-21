@@ -60,7 +60,7 @@ export class GameView implements OnInit {
 	protected readonly betsOnTable = computed<BetOnTable>(() => {
 		const state = this.gameState();
 
-		if (!state || state.state === "IDLE" || state.state === "RESULT") {
+		if (!state || state.state === "IDLE") { //check to show result 
 			return {};
 		}
 
@@ -163,8 +163,12 @@ export class GameView implements OnInit {
 	 * Update all chip in the views
 	 */
 	private updateView() {
+		console.log("up view");
+		
 		//Prepare the data as used (temp only work with number)
 		const bets = new Map();
+		console.log(this.betsOnTable());
+		
 		for (const [el, v] of Object.entries(this.betsOnTable())) {
 			bets.set(`num-${el}`, {
 				htmlElement: $(`*[data-num=${el}]`)[0],
