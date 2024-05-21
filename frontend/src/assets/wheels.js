@@ -4,14 +4,13 @@ let wheelnumbersAC = [0, 26, 3, 35, 12, 28, 7, 29, 18, 22, 9, 31, 14, 20, 1, 33,
 let wheel;
 let ballTrack;
 
-$(document).ready(function () {
+function initWheel() {
 	setTimeout(function () {
 		buildWheel(document.getElementsByClassName("main-container")[0]);
 		wheel = document.getElementsByClassName('wheel')[0];
 		ballTrack = document.getElementsByClassName('ballTrack')[0];
 	}, 1000);
-});
-
+}
 
 
 

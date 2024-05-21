@@ -36,8 +36,7 @@ function getCaseByNumber(number) {
 }
 
 //Simple fix
-$(document).ready(function () {
-    setTimeout(function () {
+function initTable() {
         // init value on the colors
         console.log("ready");
         $(".roulette > table .num").each(function () {
@@ -199,13 +198,12 @@ $(document).ready(function () {
                  });
              });
          }); */
-
-    }, 1000);
-});
-
+         
+}
 
 
-function drawChip(elementClicked, value, isOwnBet,username) {
+
+function drawChip(elementClicked, value, isOwnBet, username) {
     let colorChip = "blue";
     if (value >= 5) {
         colorChip = "orange"
@@ -278,7 +276,7 @@ window.updateBetsView = (bets, userLogged) => {
     document.querySelector(".chips").innerHTML = "";
     bets.forEach((value, key) => {
         let isOwnBet = (userLogged == value.username) ? true : false;
-        drawChip(value.htmlElement, value.value, isOwnBet,value.username);
+        drawChip(value.htmlElement, value.value, isOwnBet, value.username);
         let numberSelected;
         if (key.split("-")[0] == "num") {
             numberSelected = key.split("-")[1].split(",");

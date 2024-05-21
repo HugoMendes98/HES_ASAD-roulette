@@ -17,6 +17,10 @@ const _window = window as never as {
 	updateBetsView: (bets: Map<unknown, unknown>, user?: string) => void;
 };
 
+declare var initWheel: any; //include file wheels.js
+declare var wheel: any; //include file wheels.js
+declare var initTable: any; //include file setupTable.js
+
 type BetOnTable = Record<string, { username: string; value: number }>;
 
 @Component({
@@ -86,10 +90,15 @@ export class GameView implements OnInit {
 		this.gameState$.pipe(debounceTime(250)).subscribe(state => {
 			this.updateView();
 
-			if (state.state === "RESULT") {
+			if (state.state === "RESULT" && wheel != undefined) {
 				_window.spinWheel(state.winning_slot);
 			}
 		});
+	}
+
+	public ngAfterViewInit(): void{	
+		new initWheel(); //name of the function in wheels.js file
+		new initTable(); //name of the function in setupTable.js file
 	}
 
 	//API POST a bet for a user
