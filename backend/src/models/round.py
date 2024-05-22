@@ -140,12 +140,21 @@ class Round(db.Model):
     def get_winning_bids(self):
         n = db.session.query(Bid).filter_by(round_id=self.id, is_won=True).all()
         return n
+    
+    def get_history(self,slot = 19):
+        n = db.session.query(Round).filter_by(game_id = self.game_id).filter(Round.winning_slot.isnot(None)).order_by(Round.round_number.desc()).offset(1).limit(slot).all()
+        history = []
+        for round in n:
+            history.append(round.winning_slot)
+
+        return history
 
     def to_dict(self):
         state = RoundStates(self.state)
         round_dict = {
             "state": state.name,
             "next_state_timestamp": self.next_state_timestamp,
+            "last_win" : self.get_history()
         }
 
         if state == RoundStates.BIDABLE or state == RoundStates.WAITING:
