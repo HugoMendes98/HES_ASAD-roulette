@@ -2,6 +2,7 @@ interface GameStateBase<T> {
 	/** Timestamp for the next state */
 	next_state_timestamp: number;
 	state: T;
+	last_win: Number[]
 }
 
 export interface GameStateIdle extends GameStateBase<"IDLE"> {

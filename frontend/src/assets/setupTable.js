@@ -270,6 +270,15 @@ function getCasePositionRelativeOfBody(elementClicked, widthChip, heightChip) {
     }
 }
 
+function getColorOfNumber(number)
+{
+    if(number == 0)
+        return "green"
+    let caseHtml = getCaseByNumber(number); 
+    let classList = caseHtml.classList.value.split(",").toString().replace("num","");
+    return classList.trim();
+}
+
 
 window.updateBetsView = (bets, userLogged) => {
     $(".locked").removeClass("locked")

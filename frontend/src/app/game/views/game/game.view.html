@@ -520,6 +520,19 @@
 
 <div id="cursorElement"></div>
 
+<div class="timer">
+	<countdown [config]="{ leftTime: timer, format: 'm:ss.S' }" />
+	<h2>{{displayState(state)}}</h2>
+</div>
+
+<div class="history">
+	<table>
+		<tr>
+			<td *ngFor="let num of history" class="num" >{{num}}</td>
+		</tr>
+	</table>
+</div>
+
 <div>
 	<h3>Game state:</h3>
 	<pre>{{ gameState$ | async | json }} </pre>

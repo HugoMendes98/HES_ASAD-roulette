@@ -5,12 +5,14 @@ import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatInputModule } from "@angular/material/input";
 import $ from "jquery";
-import { debounceTime, switchMap } from "rxjs";
+import { debounceTime, switchMap, tap } from "rxjs";
 
 import { ApiModule, GameApiService } from "../../../../lib/api";
 import { SocketModule, SocketService } from "../../../../lib/socket";
 import { AuthModule } from "../../../auth/auth.module";
 import { AuthService } from "../../../auth/auth.service";
+import { CountdownModule } from 'ngx-countdown';
+import { CountdownComponent } from 'ngx-countdown';
 
 const _window = window as never as {
 	spinWheel: (slot: number) => void;
@@ -20,6 +22,7 @@ const _window = window as never as {
 declare var initWheel: any; //include file wheels.js
 declare var wheel: any; //include file wheels.js
 declare var initTable: any; //include file setupTable.js
+declare var getColorOfNumber: any; //include file setupTable.js
 
 type BetOnTable = Record<string, { username: string; value: number }>;
 
@@ -36,6 +39,7 @@ type BetOnTable = Record<string, { username: string; value: number }>;
 		MatInputModule,
 		FormsModule,
 		SocketModule,
+		CountdownComponent
 	],
 })
 export class GameView implements OnInit {
@@ -73,12 +77,15 @@ export class GameView implements OnInit {
 	});
 
 	protected amountSelected = 0;
+	protected timer = 0;
+	protected state = "";
+	protected history: Number[] = []
 
 	public constructor(
 		private readonly authService: AuthService,
 		private readonly gameApi: GameApiService,
 		private readonly socket: SocketService,
-	) {}
+	) { }
 
 	public ngOnInit(): void {
 		this.setupEvent();
@@ -93,10 +100,19 @@ export class GameView implements OnInit {
 			if (state.state === "RESULT" && wheel != undefined) {
 				_window.spinWheel(state.winning_slot);
 			}
+
+			this.state = state.state;
+			this.timer = new Date(state.next_state_timestamp).getSeconds() - new Date().getSeconds()
+			this.history = state.last_win;
+			setTimeout(() => {
+				this.updateHistoryColor();
+			}, 200);
+	
+
 		});
 	}
 
-	public ngAfterViewInit(): void{	
+	public ngAfterViewInit(): void {
 		new initWheel(); //name of the function in wheels.js file
 		new initTable(); //name of the function in setupTable.js file
 	}
@@ -104,6 +120,7 @@ export class GameView implements OnInit {
 	//API POST a bet for a user
 	public bid(id: number, value: number) {
 		const user = this.user();
+		console.log(user);
 		if (!user || !this.isConnected()) {
 			// Not connected
 			return;
@@ -164,11 +181,11 @@ export class GameView implements OnInit {
 	 */
 	private updateView() {
 		console.log("up view");
-		
+
 		//Prepare the data as used (temp only work with number)
 		const bets = new Map();
 		console.log(this.betsOnTable());
-		
+
 		for (const [el, v] of Object.entries(this.betsOnTable())) {
 			bets.set(`num-${el}`, {
 				htmlElement: $(`*[data-num=${el}]`)[0],
@@ -227,4 +244,25 @@ export class GameView implements OnInit {
 		alert("Case not available");
 		return false;
 	}
+
+	public displayState(state: string) {
+		//19 case history
+		switch (state) {
+			case "BIDABLE":
+				return "Bid"
+			case "RESULT":
+				return "Result"
+			case "WAITING":
+				return "Wait"
+			case "IDLE":
+				return "Preparation"
+			default:
+				return "DefaultState"
+		}
+	}
+
+	private updateHistoryColor() {
+		document.querySelectorAll('.history .num').forEach((el) => el.classList.add(getColorOfNumber(parseInt(el.innerHTML))));
+	}
+
 }
