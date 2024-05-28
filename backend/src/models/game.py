@@ -90,8 +90,9 @@ class Game(db.Model):
             self.go_to_idle(datetime.utcnow() + timedelta(seconds=config.IDLE_time_s))
             print("La manche est terminée, un nouveau round va bientot commencer...")
 
-    # This method prepare the game, either for a fresh start or after a crash
-    # If a late round is detected
+    # This method prepare the game, either for a fresh start or after an anomaly
+    # If a late round is detected, and it was not during the result states,
+    # the game refunds the money and start fresh
     def init_game(self):
         # try to check if the last round is done correctly or not
         startNewIdleRound = True
