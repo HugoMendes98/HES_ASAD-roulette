@@ -83,40 +83,35 @@ class Game(db.Model):
         elif RoundStates(current_round.state) == RoundStates.WAITING:
             self.go_to_result(
                 Slots(randint(0, 36)),
-                datetime.utcnow()
-                + timedelta(seconds=config.RESULTS_time_s),
+                datetime.utcnow() + timedelta(seconds=config.RESULTS_time_s),
             )
             print("Les résultats sont tombés")
         elif RoundStates(current_round.state) == RoundStates.RESULT:
             self.go_to_idle(datetime.utcnow() + timedelta(seconds=config.IDLE_time_s))
-            print(
-                "La manche est terminée, un nouveau round va bientot commencer..."
-            )
-    
+            print("La manche est terminée, un nouveau round va bientot commencer...")
+
     # This method prepare the game, either for a fresh start or after a crash
     # If a late round is detected
     def init_game(self):
-        #try to check if the last round is done correctly or not
-        startNewIdleRound =True
+        # try to check if the last round is done correctly or not
+        startNewIdleRound = True
         current_round = self.get_last_round()
-        if(current_round != None): #if there are a round existing in the db
+        if current_round != None:  # if there are a round existing in the db
             next_state = current_round.next_state_timestamp
             sleep_time = (next_state - datetime.utcnow()).total_seconds()
 
-            if(sleep_time > 0): #still on time 
+            if sleep_time > 0:  # still on time
                 startNewIdleRound = False
             else:
                 print("late restart a new round")
                 startNewIdleRound = True
-                if(current_round.state != RoundStates.RESULT):
-                    #revert bet
+                if current_round.state != RoundStates.RESULT:
+                    # revert bet
                     print("cancel latest bet")
                     current_round.cancel_round()
-        
+
         if startNewIdleRound:
             self.go_to_idle(datetime.utcnow() + timedelta(seconds=config.IDLE_time_s))
-
-
 
     def __repr__(self):
         return "<Game %r>" % self.id

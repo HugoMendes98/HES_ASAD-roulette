@@ -2,7 +2,6 @@ from datetime import datetime
 
 from flask_socketio import SocketIO
 
-# from . import config
 from .models import Game
 from .sockets import get_game_socket_path, register_sockets
 
