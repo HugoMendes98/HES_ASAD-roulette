@@ -56,7 +56,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 		private readonly authService: AuthService,
 		private readonly socketService: SocketService,
 		private readonly router: Router,
-		private _snackBar: MatSnackBar,
+		private readonly _snackBar: MatSnackBar,
 	) {}
 
 	public ngOnInit() {

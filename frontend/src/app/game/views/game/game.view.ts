@@ -11,6 +11,7 @@ import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatInputModule } from "@angular/material/input";
+import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar";
 import $ from "jquery";
 import { CountdownComponent } from "ngx-countdown";
 import { switchMap } from "rxjs";
@@ -46,6 +47,7 @@ type BetOnTable = Partial<
 		CommonModule,
 		MatButtonModule,
 		MatInputModule,
+		MatSnackBarModule,
 		FormsModule,
 		SocketModule,
 		CountdownComponent,
@@ -94,6 +96,7 @@ export class GameView implements AfterViewInit {
 		private readonly authService: AuthService,
 		private readonly gameApi: GameApiService,
 		private readonly socket: SocketService,
+		private readonly snackBar: MatSnackBar,
 	) {
 		effect(() => {
 			const game = this.gameState();
@@ -217,8 +220,7 @@ export class GameView implements AfterViewInit {
 			return true;
 		}
 
-		// eslint-disable-next-line no-alert -- Ok for now
-		alert("Case not available");
+		this.snackBar.open("Case not available", "", { duration: 3000 });
 		return false;
 	}
 }
