@@ -7,15 +7,30 @@
 		<form class="flex flex-col gap-4" (ngSubmit)="submit()">
 			<mat-form-field>
 				<mat-label>Username</mat-label>
-				<input matInput name="username" type="text" [formControl]="form.controls.username" />
+				<input
+					matInput
+					name="username"
+					type="text"
+					[formControl]="form.controls.username"
+				/>
 			</mat-form-field>
 
 			<mat-form-field>
 				<mat-label>Password</mat-label>
-				<input matInput name="password" [formControl]="form.controls.password" [readonly]="showPassword"
-					[type]="showPassword ? 'text' : 'password'" />
+				<input
+					matInput
+					name="password"
+					[formControl]="form.controls.password"
+					[readonly]="showPassword"
+					[type]="showPassword ? 'text' : 'password'"
+				/>
 
-				<button mat-icon-button matIconSuffix type="button" (pointerdown)="showPassword = !showPassword">
+				<button
+					mat-icon-button
+					matIconSuffix
+					type="button"
+					(pointerdown)="showPassword = !showPassword"
+				>
 					<mat-icon *ngIf="showPassword">visibility_off</mat-icon>
 					<mat-icon *ngIf="!showPassword">visibility</mat-icon>
 				</button>
@@ -23,22 +38,42 @@
 
 			<mat-form-field>
 				<mat-label>Confirmation</mat-label>
-				<input matInput name="confirm" [formControl]="form.controls.confirm" [readonly]="showPasswordConfirm"
-					[type]="showPasswordConfirm ? 'text' : 'password'" />
+				<input
+					matInput
+					name="confirm"
+					[formControl]="form.controls.confirm"
+					[readonly]="showPasswordConfirm"
+					[type]="showPasswordConfirm ? 'text' : 'password'"
+				/>
 
-				<button mat-icon-button matIconSuffix type="button"
-					(pointerdown)="showPasswordConfirm = !showPasswordConfirm">
-					<mat-icon *ngIf="showPasswordConfirm">visibility_off</mat-icon>
+				<button
+					mat-icon-button
+					matIconSuffix
+					type="button"
+					(pointerdown)="showPasswordConfirm = !showPasswordConfirm"
+				>
+					<mat-icon *ngIf="showPasswordConfirm"
+						>visibility_off</mat-icon
+					>
 					<mat-icon *ngIf="!showPasswordConfirm">visibility</mat-icon>
 				</button>
 			</mat-form-field>
 
-			<button color="primary" mat-raised-button type="submit" [disabled]="form.invalid">Sign up</button>
+			<button
+				color="primary"
+				mat-raised-button
+				type="submit"
+				[disabled]="form.invalid"
+			>
+				Sign up
+			</button>
 		</form>
 
 		<p>
 			Want to
-			<a queryParamsHandling="preserve" [routerLink]="'/' + (PATHS.login)">login</a>?
+			<a queryParamsHandling="preserve" [routerLink]="'/' + PATHS.login"
+				>login</a
+			>?
 		</p>
 	</mat-card-content>
 </mat-card>

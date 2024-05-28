@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { MatButtonModule } from "@angular/material/button";
 import { MatIconModule } from "@angular/material/icon";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { Router, RouterModule } from "@angular/router";
 import { Subscription, debounceTime, of, switchMap, tap } from "rxjs";
@@ -12,7 +13,6 @@ import { APP_PATHS } from "../app.path";
 import { AuthModule } from "../auth/auth.module";
 import { AuthService } from "../auth/auth.service";
 import type { LoginViewQuery } from "../auth/views/login/login.view";
-import { MatSnackBar } from "@angular/material/snack-bar";
 
 @Component({
 	selector: "app-header",
@@ -37,10 +37,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
 			tap(connected => {
 				if (connected) {
 					void this.authService.tryRefreshProfile();
-					this.openSnackBar("Connected to the server")
-				}
-				else {
-					this.openSnackBar("The connection with the server is lost. The information displayed cannot be guaranteed")
+					this.openSnackBar("Connected to the server");
+				} else {
+					this.openSnackBar(
+						"The connection with the server is lost. The information displayed cannot be guaranteed",
+					);
 				}
 			}),
 		),
@@ -55,8 +56,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 		private readonly authService: AuthService,
 		private readonly socketService: SocketService,
 		private readonly router: Router,
-		private _snackBar: MatSnackBar
-	) { }
+		private readonly _snackBar: MatSnackBar,
+	) {}
 
 	public ngOnInit() {
 		this.subscription.add(
@@ -107,8 +108,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
 	}
 
 	private openSnackBar(message: string) {
-		this._snackBar.open(message, '', {
-			duration: 3000
+		this._snackBar.open(message, "", {
+			duration: 3000,
 		});
 	}
 }

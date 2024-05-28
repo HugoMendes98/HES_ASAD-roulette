@@ -1,4 +1,5 @@
 import { CommonModule } from "@angular/common";
+import { HttpErrorResponse } from "@angular/common/http";
 import { Component, input } from "@angular/core";
 import {
 	FormControl,
@@ -12,6 +13,7 @@ import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { Router, RouterModule } from "@angular/router";
 
 import { AuthLoginDto } from "../../../../lib/api";
@@ -19,16 +21,10 @@ import { FormControlsFrom } from "../../../../lib/forms";
 import { APP_PATHS } from "../../../app.path";
 import { AuthModule } from "../../auth.module";
 import { AuthService } from "../../auth.service";
-import { MatSnackBar } from "@angular/material/snack-bar";
-import { HttpErrorResponse } from "@angular/common/http";
 
 export interface LoginViewQuery {
 	redirectUrl?: string;
 }
-export interface LoginViewRouteData {
-	isSignup: boolean;
-}
-
 @Component({
 	standalone: true,
 	styleUrl: "./login.view.scss",
@@ -47,10 +43,7 @@ export interface LoginViewRouteData {
 		RouterModule,
 	],
 })
-export class LoginView
-	implements Record<keyof (LoginViewQuery & LoginViewRouteData), unknown> {
-	/** Router Data, is it the signup page */
-	public readonly isSignup = input.required<boolean>();
+export class LoginView implements Record<keyof LoginViewQuery, unknown> {
 	/** Query param */
 	public readonly redirectUrl = input.required<string | undefined>();
 
@@ -74,22 +67,24 @@ export class LoginView
 		private readonly service: AuthService,
 		private readonly router: Router,
 		private _snackBar: MatSnackBar,
-	) { }
+	) {}
 
 	protected async submit() {
 		if (this.form.invalid) {
-			this.openSnackBar("Error : form not valid")
+			this.openSnackBar("Error: form not valid");
 			return;
 		}
 
 		try {
 			await this.service.login(this.form.getRawValue());
-			this.openSnackBar(`Welcome ${this.form.getRawValue().username}`)
+			this.openSnackBar(`Welcome ${this.form.getRawValue().username}`);
 			return this.redirect(this.redirectUrl());
-		} catch (error: HttpErrorResponse & any) {
-			if (error.status == 401) {
-				this.openSnackBar("the password and/or the username is wrong")
-			}
+		} catch (error: unknown) {
+			this.openSnackBar(
+				error instanceof HttpErrorResponse && error.status === 401
+					? "the password and/or the username is wrong"
+					: "An error occurred",
+			);
 		}
 	}
 
@@ -98,8 +93,8 @@ export class LoginView
 	}
 
 	private openSnackBar(message: string) {
-		this._snackBar.open(message, '', {
-			duration: 3000
+		this._snackBar.open(message, "", {
+			duration: 3000,
 		});
 	}
 }

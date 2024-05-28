@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Socket } from "ngx-socket-io";
-import { map, merge } from "rxjs";
+import { map, merge, startWith } from "rxjs";
 
 import { GameState } from "./states";
 
@@ -10,10 +10,15 @@ export class SocketService {
 		this.onConnect(),
 		this.onDisconnect(),
 	).pipe(
-		map(() => (this.socket.ioSocket as { connected: boolean }).connected),
+		startWith(this.isConnected()),
+		map(() => this.isConnected()),
 	);
 
 	public constructor(public readonly socket: Socket) {}
+
+	public isConnected() {
+		return (this.socket.ioSocket as { connected: boolean }).connected;
+	}
 
 	public onConnect() {
 		return this.socket.fromEvent("connect");

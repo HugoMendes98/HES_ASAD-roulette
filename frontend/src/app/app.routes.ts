@@ -1,8 +1,6 @@
 import { Routes } from "@angular/router";
 
 import { APP_PATHS } from "./app.path";
-import { SignUpViewRouteData } from "./auth/views/signup/signup.view";
-import { LoginViewRouteData } from "./auth/views/login/login.view";
 
 export const routes: Routes = [
 	{
@@ -16,13 +14,11 @@ export const routes: Routes = [
 	// path: APP_PATHS.games.path,
 	//},
 	{
-		data: { isSignup: false } satisfies LoginViewRouteData,
 		loadComponent: () =>
 			import("./auth/views/login/login.view").then(v => v.LoginView),
 		path: APP_PATHS.auth.login,
 	},
 	{
-		data: { isSignup: true } satisfies SignUpViewRouteData,
 		loadComponent: () =>
 			import("./auth/views/signup/signup.view").then(v => v.SignUpView),
 		path: APP_PATHS.auth.signup,

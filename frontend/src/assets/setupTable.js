@@ -28,8 +28,8 @@ window.sectors_values = {
 
 /**
  * Get the html case of the wheels table based on the number
- * @param {Int} number 
- * @returns {HTMLElement} 
+ * @param {Int} number
+ * @returns {HTMLElement}
  */
 function getCaseByNumber(number) {
     return Array.from(document.querySelectorAll(".roulette > table .num")).find(x => x.innerText == number);
@@ -125,8 +125,8 @@ function initTable() {
                       $(element).removeClass("hover");
                   });
               });
-  
-              //fix with mouse move 
+
+              //fix with mouse move
               if (sectors_number <= 6) {
                   $(element).on("mousemove", e => {
                       let allCaseNumber = sectors_values[sectors_number];
@@ -198,7 +198,7 @@ function initTable() {
                  });
              });
          }); */
-         
+
 }
 
 
@@ -274,7 +274,7 @@ function getColorOfNumber(number)
 {
     if(number == 0)
         return "green"
-    let caseHtml = getCaseByNumber(number); 
+    let caseHtml = getCaseByNumber(number);
     let classList = caseHtml.classList.value.split(",").toString().replace("num","");
     return classList.trim();
 }
@@ -284,8 +284,8 @@ window.updateBetsView = (bets, userLogged) => {
     $(".locked").removeClass("locked")
     document.querySelector(".chips").innerHTML = "";
     bets.forEach((value, key) => {
-        let isOwnBet = (userLogged == value.username) ? true : false;
-        drawChip(value.htmlElement, value.value, isOwnBet, value.username);
+        let isOwnBet = (userLogged == value.userId) ? true : false;
+        drawChip(value.htmlElement, value.value, isOwnBet, value.userId);
         let numberSelected;
         if (key.split("-")[0] == "num") {
             numberSelected = key.split("-")[1].split(",");
