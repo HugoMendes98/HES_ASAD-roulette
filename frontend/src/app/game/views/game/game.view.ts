@@ -1,30 +1,39 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, OnInit } from "@angular/core";
+import {
+	AfterViewInit,
+	Component,
+	computed,
+	effect,
+	HostListener,
+	input,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatInputModule } from "@angular/material/input";
 import $ from "jquery";
-import { debounceTime, switchMap, tap } from "rxjs";
+import { CountdownComponent } from "ngx-countdown";
+import { switchMap } from "rxjs";
 
-import { ApiModule, GameApiService } from "../../../../lib/api";
+import { ApiModule, GameApiService, InOutBets } from "../../../../lib/api";
 import { SocketModule, SocketService } from "../../../../lib/socket";
+import { GameBet, GameStateState } from "../../../../lib/socket/states";
 import { AuthModule } from "../../../auth/auth.module";
 import { AuthService } from "../../../auth/auth.service";
-import { CountdownModule } from 'ngx-countdown';
-import { CountdownComponent } from 'ngx-countdown';
 
 const _window = window as never as {
 	spinWheel: (slot: number) => void;
 	updateBetsView: (bets: Map<unknown, unknown>, user?: string) => void;
 };
 
-declare var initWheel: any; //include file wheels.js
-declare var wheel: any; //include file wheels.js
-declare var initTable: any; //include file setupTable.js
-declare var getColorOfNumber: any; //include file setupTable.js
+declare const initWheel: () => void; //include file wheels.js
 
-type BetOnTable = Record<string, { username: string; value: number }>;
+declare const initTable: () => void; //include file setupTable.js
+declare const getColorOfNumber: (param: unknown) => string; //include file setupTable.js
+
+type BetOnTable = Partial<
+	Record<InOutBets, Pick<GameBet, "userId"> & { value: number }>
+>;
 
 @Component({
 	standalone: true,
@@ -39,10 +48,10 @@ type BetOnTable = Record<string, { username: string; value: number }>;
 		MatInputModule,
 		FormsModule,
 		SocketModule,
-		CountdownComponent
+		CountdownComponent,
 	],
 })
-export class GameView implements OnInit {
+export class GameView implements AfterViewInit {
 	/** Id from route param */
 	public readonly gameId = input.required<number, string>({
 		transform: query => +query,
@@ -64,65 +73,53 @@ export class GameView implements OnInit {
 	protected readonly betsOnTable = computed<BetOnTable>(() => {
 		const state = this.gameState();
 
-		if (!state || state.state === "IDLE") { //check to show result 
+		if (!state || state.state === "IDLE") {
+			//check to show result
 			return {};
 		}
 
 		return Object.fromEntries(
-			state.bets.map(({ inOutbet, username, wager }) => [
-				inOutbet,
-				{ username, value: wager },
+			state.bets.map(({ inOutbet, userId, wager }) => [
+				inOutbet as InOutBets,
+				{ userId, value: wager },
 			]),
 		);
 	});
 
+	protected readonly getColorForSlot = getColorOfNumber;
+
 	protected amountSelected = 0;
-	protected timer = 0;
-	protected state = "";
-	protected history: Number[] = []
 
 	public constructor(
 		private readonly authService: AuthService,
 		private readonly gameApi: GameApiService,
 		private readonly socket: SocketService,
-	) { }
-
-	public ngOnInit(): void {
-		this.setupEvent();
-
-		document.addEventListener("mousemove", e => {
-			this.updateCursorPosition(e.clientX, e.clientY);
-		});
-
-		this.gameState$.pipe(debounceTime(250)).subscribe(state => {
-			this.updateView();
-
-			if (state.state === "RESULT" && wheel != undefined) {
-				_window.spinWheel(state.winning_slot);
+	) {
+		effect(() => {
+			const game = this.gameState();
+			if (game && game.state === "RESULT") {
+				_window.spinWheel(game.winning_slot);
 			}
 
-			this.state = state.state;
-			this.timer = new Date(state.next_state_timestamp).getSeconds() - new Date().getSeconds()
-			this.history = state.last_win;
-			setTimeout(() => {
-				this.updateHistoryColor();
-			}, 200);
-	
-
+			this.updateView();
 		});
 	}
 
 	public ngAfterViewInit(): void {
-		new initWheel(); //name of the function in wheels.js file
-		new initTable(); //name of the function in setupTable.js file
+		initWheel(); //name of the function in wheels.js file
+		initTable(); //name of the function in setupTable.js file
 	}
 
 	//API POST a bet for a user
 	public bid(id: number, value: number) {
 		const user = this.user();
-		console.log(user);
-		if (!user || !this.isConnected()) {
-			// Not connected
+		if (
+			!user ||
+			!this.isConnected() ||
+			!this.amountSelected ||
+			this.gameState()?.state !== "BIDABLE"
+		) {
+			// Not connected or nothing to bet
 			return;
 		}
 
@@ -138,58 +135,41 @@ export class GameView implements OnInit {
 		this.amountSelected = value;
 	}
 
-	/**
-	 * Add a chip on the view in the correct case
-	 * @param elementClicked
-	 * @param valueBet
-	 */
-	public addChip(elementClicked: {
-		dataset: { num: string | undefined; sector: string };
-	}) {
-		if (!elementClicked.dataset.num) {
-			return;
-		}
-
-		const valueBet = this.amountSelected;
-		this.bid(+(elementClicked.dataset.num ?? "0"), valueBet);
-		this.updateView();
+	@HostListener("mousemove", ["$event"])
+	protected onMouseMove(e: MouseEvent) {
+		this.updateCursorPosition(e.clientX, e.clientY);
 	}
 
-	/**
-	 * Setup Event onClick on each case to allow add chip on case
-	 */
-	private setupEvent() {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- FIXME
-		$(".controlls-2 table").on("mousedown", (e: { target: any }) => {
-			/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- FIXME */
-			let elementClicked = e.target;
-			if (elementClicked.tagName === "SPAN") {
-				elementClicked = elementClicked.parentElement;
-			}
+	protected displayState(state: GameStateState): string {
+		switch (state) {
+			case "BIDABLE":
+				return "Bid";
+			case "RESULT":
+				return "Result";
+			case "WAITING":
+				return "Wait";
+			case "IDLE":
+				return "Preparation";
+		}
+	}
 
-			// Need to take care of sector, multiple sector and num later
-			const number = elementClicked.dataset.num as string;
-			if (this.caseAvailable(number)) {
-				this.addChip(elementClicked as never);
-			}
-			/* eslint-enable */
-		});
+	protected onSlotClick(slot: InOutBets) {
+		if (this.caseAvailable(slot)) {
+			this.bid(slot, this.amountSelected);
+		}
 	}
 
 	/**
 	 * Update all chip in the views
 	 */
 	private updateView() {
-		console.log("up view");
-
 		//Prepare the data as used (temp only work with number)
 		const bets = new Map();
-		console.log(this.betsOnTable());
 
 		for (const [el, v] of Object.entries(this.betsOnTable())) {
 			bets.set(`num-${el}`, {
 				htmlElement: $(`*[data-num=${el}]`)[0],
-				username: v.username,
+				userId: v.userId,
 				value: v.value,
 			});
 		}
@@ -197,7 +177,7 @@ export class GameView implements OnInit {
 		_window.updateBetsView(bets, this.user()?.username);
 	}
 
-	//Update positon of the chip selected based on the cursor position
+	// Update position of the chip selected based on the cursor position
 	private updateCursorPosition(clientX: number, clientY: number) {
 		const cursorElement = document.getElementById("cursorElement");
 		if (!cursorElement) {
@@ -231,12 +211,9 @@ export class GameView implements OnInit {
 		cursorElement.style.top = `${clientY - 10}px`; // Adjusting for element height
 	}
 
-	private caseAvailable(number: string) {
-		const betsOnTable = this.betsOnTable();
-		if (
-			!betsOnTable[number] ||
-			betsOnTable[number].username === this.user()?.username
-		) {
+	private caseAvailable(number: InOutBets) {
+		const bet = this.betsOnTable()[number];
+		if (!bet || bet.userId === this.user()?.id) {
 			return true;
 		}
 
@@ -244,25 +221,4 @@ export class GameView implements OnInit {
 		alert("Case not available");
 		return false;
 	}
-
-	public displayState(state: string) {
-		//19 case history
-		switch (state) {
-			case "BIDABLE":
-				return "Bid"
-			case "RESULT":
-				return "Result"
-			case "WAITING":
-				return "Wait"
-			case "IDLE":
-				return "Preparation"
-			default:
-				return "DefaultState"
-		}
-	}
-
-	private updateHistoryColor() {
-		document.querySelectorAll('.history .num').forEach((el) => el.classList.add(getColorOfNumber(parseInt(el.innerHTML))));
-	}
-
 }

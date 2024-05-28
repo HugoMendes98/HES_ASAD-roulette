@@ -18,26 +18,28 @@ def event_loop(app):
 
 		current_game = Game.get(1)
 
-		#try to check if the last round is done correctly or not
-		startNewRound =True
+		# try to check if the last round is done correctly or not
+		startNewRound = True
 		current_round = current_game.get_last_round()
-		if(current_round != None): #if there are a round existing in the db
+		if current_round != None:  # if there are a round existing in the db
 			next_state = current_round.next_state_timestamp
 			sleep_time = (next_state - datetime.utcnow()).total_seconds()
 
-			if(sleep_time > 0): #still on time 
+			if sleep_time > 0:  # still on time
 				startNewRound = False
 			else:
 				print("late restart a new round")
 				startNewRound = True
-				if(current_round.state != RoundStates.RESULT):
-					#revert bet
+				if current_round.state != RoundStates.RESULT:
+					# revert bet
 					print("cancel latest bet")
-					current_round.cancel_round()	
+					current_round.cancel_round()
 
-		if(startNewRound):
-			current_game.go_to_idle(datetime.utcnow() + timedelta(seconds=config.IDLE_time_s))
-			
+		if startNewRound:
+			current_game.go_to_idle(
+				datetime.utcnow() + timedelta(seconds=config.IDLE_time_s)
+			)
+
 		register_sockets(socketio)
 
 		print("Game is about to start")

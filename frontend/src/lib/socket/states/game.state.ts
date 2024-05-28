@@ -1,8 +1,9 @@
 interface GameStateBase<T> {
+	/** Last <x> wins */
+	last_win: number[];
 	/** Timestamp for the next state */
 	next_state_timestamp: number;
 	state: T;
-	last_win: Number[]
 }
 
 export interface GameStateIdle extends GameStateBase<"IDLE"> {
@@ -10,22 +11,24 @@ export interface GameStateIdle extends GameStateBase<"IDLE"> {
 	_: never;
 }
 
-export interface GameBets {
+export interface GameBet {
 	/** "Slot" played */
 	inOutbet: number;
 	/** User that bid */
-	username: string;
+	userId: number;
 	wager: number;
 }
 
 interface GameStateWithBets {
-	bets: readonly GameBets[];
+	bets: readonly GameBet[];
 }
 
 export type GameStateBidable = GameStateBase<"BIDABLE"> & GameStateWithBets;
 export type GameStateWaiting = GameStateBase<"WAITING"> & GameStateWithBets;
 
-export interface GameStateResult extends GameStateBase<"RESULT">,GameStateWithBets  {
+export interface GameStateResult
+	extends GameStateBase<"RESULT">,
+		GameStateWithBets {
 	/** Number of the slot that wins */
 	winning_slot: number;
 }

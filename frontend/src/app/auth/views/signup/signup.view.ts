@@ -1,4 +1,5 @@
 import { CommonModule } from "@angular/common";
+import { HttpErrorResponse } from "@angular/common/http";
 import { Component, input } from "@angular/core";
 import {
 	FormControl,
@@ -12,23 +13,22 @@ import { MatCardModule } from "@angular/material/card";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { Router, RouterModule } from "@angular/router";
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AuthSignupDto } from "../../../../lib/api";
 import { FormControlsFrom } from "../../../../lib/forms";
 import { APP_PATHS } from "../../../app.path";
 import { AuthModule } from "../../auth.module";
 import { AuthService } from "../../auth.service";
-import { HttpErrorResponse } from "@angular/common/http";
 
 export interface SignUpViewQuery {
 	redirectUrl?: string;
 }
-export interface SignUpViewRouteData {
-	isSignup: boolean;
-}
 
+type FormSignup = FormGroup<
+	FormControlsFrom<AuthSignupDto & { confirm: string }>
+>;
 @Component({
 	standalone: true,
 	styleUrl: "./signup.view.scss",
@@ -47,26 +47,23 @@ export interface SignUpViewRouteData {
 		RouterModule,
 	],
 })
-export class SignUpView
-	implements Record<keyof (SignUpViewQuery & SignUpViewRouteData), unknown> {
-	/** Router Data, is it the signup page */
-	public readonly isSignup = input.required<boolean>();
+export class SignUpView implements Record<keyof SignUpViewQuery, unknown> {
 	/** Query param */
 	public readonly redirectUrl = input.required<string | undefined>();
 
 	protected readonly PATHS = APP_PATHS.auth;
 
 	/** Login form */
-	protected readonly form = new FormGroup<FormControlsFrom<AuthSignupDto>>({
+	protected readonly form: FormSignup = new FormGroup({
+		confirm: new FormControl("", {
+			nonNullable: true,
+			validators: [Validators.minLength(2), Validators.required],
+		}),
 		password: new FormControl("", {
 			nonNullable: true,
 			validators: [Validators.minLength(2), Validators.required],
 		}),
 		username: new FormControl("", {
-			nonNullable: true,
-			validators: [Validators.minLength(2), Validators.required],
-		}),
-		confirm: new FormControl("", {
 			nonNullable: true,
 			validators: [Validators.minLength(2), Validators.required],
 		}),
@@ -79,30 +76,32 @@ export class SignUpView
 		private readonly service: AuthService,
 		private readonly router: Router,
 		private _snackBar: MatSnackBar,
-	) { }
+	) {}
 
 	protected async submit() {
 		if (this.form.invalid) {
-			this.openSnackBar("Error : form not valid")
+			this.openSnackBar("Error: form not valid");
 			return;
 		}
 
-		if (this.form.getRawValue().password != this.form.getRawValue().confirm) {
-			this.openSnackBar("Error : password not same")
+		const { confirm, password, username } = this.form.getRawValue();
+
+		if (password !== confirm) {
+			this.openSnackBar("Error: password not same");
 			return;
 		}
 
 		try {
-			await this.service.signup(this.form.getRawValue());
-			this.openSnackBar(`Welcome ${this.form.getRawValue().username}`)
+			await this.service.signup({ password, username });
+			this.openSnackBar(`Welcome ${username}`);
 			return this.redirect(this.redirectUrl());
-
-		} catch (error: HttpErrorResponse & any) {
-			if (error.status == 409) {
-				this.openSnackBar("User already exists")
-			}
+		} catch (error: unknown) {
+			this.openSnackBar(
+				error instanceof HttpErrorResponse && error.status === 409
+					? "User already exists"
+					: "An error occurred",
+			);
 		}
-
 	}
 
 	private redirect(redirectUrl = "/") {
@@ -110,8 +109,8 @@ export class SignUpView
 	}
 
 	private openSnackBar(message: string) {
-		this._snackBar.open(message, '', {
-			duration: 3000
+		this._snackBar.open(message, "", {
+			duration: 3000,
 		});
 	}
 }

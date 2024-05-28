@@ -5,18 +5,16 @@ let wheel;
 let ballTrack;
 
 function initWheel() {
-	setTimeout(function () {
-		buildWheel(document.getElementsByClassName("main-container")[0]);
-		wheel = document.getElementsByClassName('wheel')[0];
-		ballTrack = document.getElementsByClassName('ballTrack')[0];
-	}, 1000);
+	buildWheel(document.getElementsByClassName("main-container")[0]);
+	wheel = document.getElementsByClassName('wheel')[0];
+	ballTrack = document.getElementsByClassName('ballTrack')[0];
 }
 
 
 
 
 /**
- * Random Spin with 
+ * Random Spin with
  */
 function spin() {
 	var winningSpin = Math.floor(Math.random() * 36);
@@ -26,7 +24,7 @@ function spin() {
 
 /**
  * Function to spin the wheel to a specifique number
- * @param {INT} winningSpin a value between 0 and 36 
+ * @param {INT} winningSpin a value between 0 and 36
  */
 window.spinWheel = (winningSpin) => {
 	for (i = 0; i < wheelnumbersAC.length; i++) {
