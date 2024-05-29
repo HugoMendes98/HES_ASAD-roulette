@@ -24,7 +24,7 @@ import { AuthService } from "../../../auth/auth.service";
 
 const _window = window as never as {
 	spinWheel: (slot: number) => void;
-	updateBetsView: (bets: Map<unknown, unknown>, user?: string) => void;
+	updateBetsView: (bets: Map<unknown, unknown>, user?: number) => void;
 };
 
 declare const initWheel: () => void; //include file wheels.js
@@ -177,7 +177,7 @@ export class GameView implements AfterViewInit {
 			});
 		}
 
-		_window.updateBetsView(bets, this.user()?.username);
+		_window.updateBetsView(bets, this.user()?.id);
 	}
 
 	// Update position of the chip selected based on the cursor position
