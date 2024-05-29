@@ -61,7 +61,7 @@ class Bid(db.Model):
         )
         return n
 
-    def delete_bid(self, is_txn=False) -> bool:
+    def delete_bid(self, is_txn=False):
         db.session.delete(self)
         if not is_txn:
             db.session.commit()
@@ -88,7 +88,7 @@ class Bid(db.Model):
         if not is_txn:
             db.session.commit()
 
-    def update_is_won(self, winning_slot, is_txn=False) -> bool:
+    def update_is_won(self, winning_slot, is_txn=False):
         self.is_won = self.inOutbet == winning_slot
         if not is_txn:
             db.session.commit()
