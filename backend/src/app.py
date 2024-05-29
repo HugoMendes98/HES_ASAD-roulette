@@ -7,7 +7,7 @@ from flask_socketio import SocketIO
 
 from . import config
 from .logic import event_loop
-from .models import register_models
+from .models import Game, register_models
 from .routes.auth import auth_blueprint
 from .routes.game import game_blueprint
 
@@ -30,7 +30,12 @@ def create_app():
 	app.socketio_instance = socketio = SocketIO(
 		app, cors_allowed_origins="*", logger=True
 	)
-	socketio.start_background_task(event_loop, app)
+
+	with app.app_context():
+		for i in range(1, 4):
+			if Game.get(i) is None:
+				Game.new(i)
+			socketio.start_background_task(event_loop, app, i)
 
 	JWTManager(app)
 	return app

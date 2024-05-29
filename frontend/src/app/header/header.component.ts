@@ -110,6 +110,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 	private openSnackBar(message: string) {
 		this._snackBar.open(message, "", {
 			duration: 3000,
+			verticalPosition: "top",
 		});
 	}
 }
